@@ -20,7 +20,7 @@ import HeaderGeneric from "../components/HeaderGeneric.jsx";
 import NeonBadge from "../components/NeonBadge.jsx";
 import { motion } from "framer-motion";
 import { useTodayJFT } from "../hooks/useTodayJFT.js";
-import { OLDCOMERS } from "../constants/Oldcomers.js";
+import { OLDCOMERS } from "../constants/oldcomers.js";
 import { getCleanTime } from "../utils/getCleanTime.js";
 import { getMilestoneDate } from "../utils/getMilestoneDate.js";
 import { getDaysClean } from "../utils/getDaysClean.js";
