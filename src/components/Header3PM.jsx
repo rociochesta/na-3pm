@@ -8,7 +8,9 @@ export default function Header3PM({ showMenu = true }) {
   const [slogan] = useState(() => getSlogan());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [timerText, setTimerText] = useState("");
 
+  // Load profile (you might use it later)
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem("na_userProfile");
@@ -20,27 +22,81 @@ export default function Header3PM({ showMenu = true }) {
     }
   }, []);
 
+  // Countdown to next 3PM in Edmonton
+  useEffect(() => {
+    function getNowInEdmonton() {
+      try {
+        const now = new Date();
+        const edmString = now.toLocaleString("en-CA", {
+          timeZone: "America/Edmonton",
+        });
+        return new Date(edmString);
+      } catch {
+        // fallback: local time if timezone not supported
+        return new Date();
+      }
+    }
+
+    function updateCountdown() {
+      const now = getNowInEdmonton();
+
+      const next = new Date(now);
+      next.setHours(15, 0, 0, 0); // 3 PM
+
+      // if already past 3PM today → tomorrow
+      if (now >= next) {
+        next.setDate(next.getDate() + 1);
+      }
+
+      const diffMs = next.getTime() - now.getTime();
+      const totalSeconds = Math.floor(diffMs / 1000);
+
+      if (totalSeconds <= 30) {
+        setTimerText("Meeting starting now");
+        return;
+      }
+
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+
+      let txt = "Next meeting in ";
+      if (h > 0) {
+        txt += `${h}h ${m}m`;
+      } else {
+        txt += `${m}m`;
+      }
+
+      setTimerText(txt);
+    }
+
+    updateCountdown(); // run once
+    const id = setInterval(updateCountdown, 30_000); // every 30s
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <>
       <header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-3">
           {/* Marca / Group block */}
-
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full border border-cyan-400/70 flex items-center justify-center text-[11px] font-semibold text-cyan-300">
-                3PM
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-[10px] uppercase tracking-[0.22em] text-slate-400">
-                  3PMERS
-                </span>
-                <span className="text-[11px] text-slate-500">NA homegroup</span>
-              </div>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full border border-cyan-400/70 flex items-center justify-center text-[11px] font-semibold text-cyan-300">
+              3PM
             </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                3PMERS
+              </span>
+              <span className="text-[11px] text-slate-500">NA homegroup</span>
+            </div>
+          </div>
 
-          {/* Slogan */}
+          {/* Timer + slogan */}
           <div className="flex-1 text-right">
             <p className="text-[11px] text-cyan-300 font-medium leading-snug">
+              {timerText || "Calculating next meeting…"}
+            </p>
+            <p className="text-[10px] text-slate-400 leading-snug">
               {slogan}
             </p>
           </div>

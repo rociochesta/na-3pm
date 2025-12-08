@@ -84,45 +84,88 @@ export default function Home() {
   const [lastPunch, setLastPunch] = useState(null);
 
   useEffect(() => {
-    // Clean date
-    const stored = window.localStorage.getItem("na_soberDate");
-    if (stored) {
-      setSoberDate(stored);
-      setDaysClean(getDaysClean(stored));
-    }
-   try {
-      const rawProfile = window.localStorage.getItem("na_userProfile");
-      if (rawProfile) {
-        setUserProfile(JSON.parse(rawProfile));
+    (async () => {
+      // ── 1) Clean date from localStorage
+      let storedSoberDate = null;
+      try {
+        const stored = window.localStorage.getItem("na_soberDate");
+        if (stored) {
+          storedSoberDate = stored;
+          setSoberDate(stored);
+          setDaysClean(getDaysClean(stored));
+        }
+      } catch {
+        // ignore
       }
-    } catch (err) {
-      console.error("User profile load error:", err);
-    }
-    // Group members desde JSON público
-    loadGroupMembers()
-      .then((data) => setGroupMembers(data))
-      .catch((err) => console.error("Group members load error:", err));
 
-    // My Why
-    const w = window.localStorage.getItem("na_myWhy");
-    
-    if (w) setSavedWhy(w);
+      // ── 2) User profile (local)
+      try {
+        const rawProfile = window.localStorage.getItem("na_userProfile");
+        if (rawProfile) {
+          setUserProfile(JSON.parse(rawProfile));
+        }
+      } catch (err) {
+        console.error("User profile load error:", err);
+      }
 
-    // Gratitudes
-    const stats = getGratitudeStats();
-    if (stats) setGratitudeStats(stats);
+      // ── 3) Try to read sober_date from DB (if we have memberId)
+      try {
+        const memberId = window.localStorage.getItem("na_memberId");
 
-    // Today’s tool done?
-    const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    const doneKey = `na_toolDone_${todayKey}`;
-    const punchKey = `na_toolDoneLine_${todayKey}`;
+        if (memberId) {
+          const res = await fetch("/.netlify/functions/get-member", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ memberId: Number(memberId) }),
+          });
 
-    const storedDone = window.localStorage.getItem(doneKey);
-    const storedLine = window.localStorage.getItem(punchKey);
+          if (!res.ok) {
+            console.warn("Failed to load member from DB:", res.status);
+          } else {
+            const data = await res.json();
+            if (data && data.sober_date) {
+              // Supabase returns full timestamp; keep YYYY-MM-DD
+              const dbDate = String(data.sober_date).slice(0, 10);
 
-    setToolDone(storedDone === "1");
-    if (storedLine) setToolDoneLine(storedLine);
+              // If local is empty or different → sync from DB
+              if (!storedSoberDate || storedSoberDate !== dbDate) {
+                window.localStorage.setItem("na_soberDate", dbDate);
+                setSoberDate(dbDate);
+                setDaysClean(getDaysClean(dbDate));
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Error fetching sober date from DB:", err);
+      }
+
+      // ── 4) Group members (JSON público)
+      loadGroupMembers()
+        .then((data) => setGroupMembers(data))
+        .catch((err) => console.error("Group members load error:", err));
+
+      // ── 5) My Why
+      const w = window.localStorage.getItem("na_myWhy");
+      if (w) setSavedWhy(w);
+
+      // ── 6) Gratitudes
+      const stats = getGratitudeStats();
+      if (stats) setGratitudeStats(stats);
+
+      // ── 7) Today’s tool done?
+      const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const doneKey = `na_toolDone_${todayKey}`;
+      const punchKey = `na_toolDoneLine_${todayKey}`;
+
+      const storedDone = window.localStorage.getItem(doneKey);
+      const storedLine = window.localStorage.getItem(punchKey);
+
+      setToolDone(storedDone === "1");
+      if (storedLine) setToolDoneLine(storedLine);
+    })();
   }, []);
+
 
   const hasSoberDate = Boolean(soberDate) && daysClean !== null;
 

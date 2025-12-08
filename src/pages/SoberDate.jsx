@@ -1,12 +1,15 @@
+// src/pages/SoberDate.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header3PM from "../components/Header3PM";
+
 export default function SoberDate() {
   const navigate = useNavigate();
   const [date, setDate] = useState("");
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  // leer sober date si ya existe
+  // leer sober date si ya existe (local)
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem("na_soberDate");
@@ -16,7 +19,7 @@ export default function SoberDate() {
     }
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -40,11 +43,50 @@ export default function SoberDate() {
       return;
     }
 
-    // guardar
-    window.localStorage.setItem("na_soberDate", date);
+    setSaving(true);
 
-    // back home
-    navigate("/");
+    try {
+      // 1) guardar localmente para que la app funcione aunque falle el backend
+      window.localStorage.setItem("na_soberDate", date);
+
+      // 2) intentar guardar en la base de datos vía Netlify function
+      try {
+        const memberId = window.localStorage.getItem("na_memberId");
+
+        if (!memberId) {
+          console.warn(
+            "No na_memberId in localStorage; skipping DB update for sober date."
+          );
+        } else {
+          const res = await fetch("/.netlify/functions/update-sober-date", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              memberId: Number(memberId),
+              soberDate: date, // YYYY-MM-DD
+            }),
+          });
+
+          if (!res.ok) {
+            console.warn(
+              "Failed to update sober date in DB:",
+              res.status,
+              await res.text()
+            );
+          } else {
+            const data = await res.json();
+            console.log("Sober date saved in DB:", data);
+          }
+        }
+      } catch (dbErr) {
+        console.warn("Error calling update-sober-date function:", dbErr);
+      }
+
+      // 3) back home
+      navigate("/");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleClear = () => {
@@ -59,8 +101,7 @@ export default function SoberDate() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col">
-      {/* top bar simple, igual que Home */}
-  <Header3PM />
+      <Header3PM />
 
       <main className="flex-1">
         <div className="max-w-md mx-auto px-4 py-6 space-y-5">
@@ -103,9 +144,10 @@ export default function SoberDate() {
             <div className="space-y-2">
               <button
                 type="submit"
-                className="w-full text-sm font-semibold tracking-wide border border-cyan-400 text-cyan-100 rounded-xl py-2.5 hover:bg-cyan-400/10 transition-colors"
+                disabled={saving}
+                className="w-full text-sm font-semibold tracking-wide border border-cyan-400 text-cyan-100 rounded-xl py-2.5 hover:bg-cyan-400/10 disabled:opacity-60 transition-colors"
               >
-                Save clean date
+                {saving ? "Saving…" : "Save clean date"}
               </button>
 
               <button
