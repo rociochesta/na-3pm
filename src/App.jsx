@@ -5,7 +5,7 @@ import Home from "./pages/Home.jsx";
 import SoberDate from "./pages/SoberDate.jsx";
 import AddGratitude from "./pages/AddGratitude.jsx";
 import Gratitudes from "./pages/Gratitudes.jsx";
-import Chips from "./pages/chips.jsx";
+import Chips from "./pages/Chips.jsx";
 import MyWhy from "./pages/MyWhy.jsx";
 import JFT from "./pages/JFT.jsx";
 import Admin from "./pages/Admin.jsx";
