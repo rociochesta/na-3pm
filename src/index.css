@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+.badge-angled {
+  position: relative;
+  border-radius: 0.75rem;
+  /* el fondo lo pone Tailwind (bg-slate-900) */
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 94% 100%, 0 100%);
+}
+
+/* borde que sigue la forma recortada */
+.badge-angled::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(51, 65, 85); /* ~ slate-700 */
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 94% 100%, 0 100%);
+  pointer-events: none;
+}
+/* 🔹 Subtle cyan shimmer for Oldcomers icons */
+.icon-shimmer {
+  animation: iconShimmer 3.2s ease-in-out infinite;
+}
+
+@keyframes iconShimmer {
+  0% {
+    opacity: 0.75;
+    transform: translateY(0);
+    filter: drop-shadow(0 0 0 rgba(34, 211, 238, 0));
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-0.5px);
+    filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.8));
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-0.5px);
+    filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.6));
+  }
+  100% {
+    opacity: 0.8;
+    transform: translateY(0);
+    filter: drop-shadow(0 0 0 rgba(34, 211, 238, 0));
+  }
+}
+
+.icon-shimmer {
+  animation: iconShimmer 1.8s ease-in-out infinite;
+}
+/* --- Buttons glow for Copy / Share --- */
+@keyframes buttonGlowCyan {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+    transform: translateY(0);
+  }
+  40% {
+    box-shadow: 0 0 14px 2px rgba(34, 211, 238, 0.8);
+    transform: translateY(-0.5px);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes buttonGlowGreen {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+    transform: translateY(0);
+  }
+  40% {
+    box-shadow: 0 0 14px 2px rgba(52, 211, 153, 0.8);
+    transform: translateY(-0.5px);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+    transform: translateY(0);
+  }
+}
+
+/* Usamos estas utilidades en los botones */
+.btn-icon {
+  @apply inline-flex items-center justify-center rounded-full border border-slate-600 p-1.5 text-slate-300 text-[11px] transition-colors;
+}
+
+.btn-icon-glow-cyan {
+  animation: buttonGlowCyan 0.55s ease-out;
+}
+
+.btn-icon-glow-green {
+  animation: buttonGlowGreen 0.55s ease-out;
+}

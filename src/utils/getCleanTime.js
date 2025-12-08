@@ -1,0 +1,85 @@
+// src/utils/getCleanTime.js
+import { getDaysClean } from "./getDaysClean.js";
+
+const CLEANTIME = [
+  "Your addiction is officially confused.",
+  "Your brain wants a refund.",
+  "This stopped being an accident a while ago.",
+  "Apparently, you’re harder to kill than expected.",
+  "That’s commitment.",
+  "Your old coping mechanisms are filing HR complaints.",
+  "That’s longer than most of your plans have survived.",
+  "Chaos is checking its calendar like, ‘???’.",
+  "Your addiction didn’t think you had it in you.",
+  "That’s not luck — that’s you, choosing you.",
+  "Your nervous system is still suspicious, but impressed.",
+  "You’re officially someone your past self wouldn’t believe.",
+  "That’s practically a personality trait now.",
+  "You’re becoming someone your addiction can’t recognize.",
+  "You didn’t outrun the cravings — you outsmarted them.",
+  "Your addiction hates this version of you.",
+  "Survival looks good on you.",
+  "Your brain didn’t expect you to make it this far.",
+  "You’re choosing reality over nostalgia for chaos.",
+  "Every craving you beat becomes part of your identity.",
+  "You’re becoming someone your excuses can’t keep up with.",
+  "Not destroying yourself is a skill — and you’re leveling up.",
+  "Your future is expanding faster than your fear can shrink it.",
+  "You’re proof that healing isn’t pretty, but it’s possible.",
+  "You’re learning to stay even when your mind screams run.",
+  "Discomfort isn’t punishment — it’s evidence.",
+  "Recovery keeps asking who you are, and you keep answering.",
+  "Your old life misses you. Don’t text it back.",
+  "You’re not lost. You’re under construction.",
+  "Your addiction didn’t leave quietly — but it’s losing relevance.",
+  "Your cravings aren’t commands.",
+  "You’re not rebuilding your life — you’re rewiring your brain.",
+  "Your feelings don’t get to vote on your future.",
+  "Peace feels uncomfortable because you're new at it.",
+  "You’re getting harder to manipulate — even by yourself.",
+  "Your story didn’t end; it just stopped being predictable.",
+  "You didn’t get lucky. You got honest.",
+  "You’re outgrowing coping mechanisms that tried to bury you.",
+  "Your nervous system is learning what safety feels like.",
+  "You’re not failing — you’re recalibrating.",
+  "Your tolerance for bullshit is dropping. That’s evolution.",
+  "Your life didn’t fall apart — your addiction did.",
+  "You’re finally becoming someone worth showing up as.",
+  "You’re building a life that won’t require escape routes.",
+  "Your demons are confused — you stopped negotiating.",
+  "You’re not who you were. That’s the point.",
+  "You’re learning to exist without an exit plan.",
+  "You’re not healing in silence — you’re upgrading in stealth mode.",
+  "Your chaos had charisma. Your clarity has power.",
+  "You’re allowed to outgrow people who memorized your past.",
+  "You’re replacing adrenaline with intention.",
+  "Your progress is louder than your past.",
+  "You don’t need permission to start over.",
+  "You survived the lie — now live the truth."
+];
+
+export function getCleanTime(dateString) {
+  const daysClean = getDaysClean(dateString);
+  if (daysClean == null || daysClean === 0) return "";
+
+  // años (aprox) sólo si ya pasaste el año
+  if (daysClean >= 365) {
+    const years = Math.floor(daysClean / 365.25);
+    const remainingDays = Math.round(daysClean - years * 365.25);
+
+    if (years >= 1) {
+      const yearsLabel = `${years} year${years > 1 ? "s" : ""}`;
+      const daysLabel =
+        remainingDays > 0
+          ? `, ${remainingDays} day${remainingDays === 1 ? "" : "s"}`
+          : "";
+      return `${yearsLabel}${daysLabel} clean`;
+    }
+  }
+
+  return `${daysClean} day${daysClean === 1 ? "" : "s"} clean`;
+}
+
+export function getCleanTimePhrase() {
+  return CLEANTIME[Math.floor(Math.random() * CLEANTIME.length)];
+}
