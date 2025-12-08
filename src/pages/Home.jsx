@@ -249,10 +249,9 @@ const hasGroup = Boolean(userProfile?.groupCode);
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col">
       {/* Top bar */}
-{userProfile?.groupCode
-  ? <HeaderGeneric group={userProfile.groupCode} />
-  : <Header3PM />
-}
+
+   <Header3PM />
+
 
 
       {/* Main content */}

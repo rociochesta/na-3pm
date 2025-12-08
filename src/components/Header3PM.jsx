@@ -5,17 +5,18 @@ import { getSlogan } from "../utils/getSlogan.js";
 import MenuOverlay from "./MenuOverlay.jsx";
 
 export default function Header3PM({ showMenu = true }) {
+  const [slogan] = useState(() => getSlogan());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [slogan, setSlogan] = useState("");
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
     try {
-      // Always use the 3PM slogans
-      const text = getSlogan({ groupKey: "3PM" });
-      setSlogan(text);
+      const raw = window.localStorage.getItem("na_userProfile");
+      if (raw) {
+        setUserProfile(JSON.parse(raw));
+      }
     } catch (err) {
-      console.error("Error loading slogan for header:", err);
-      setSlogan(getSlogan()); // fallback
+      console.error("Error loading user profile for header:", err);
     }
   }, []);
 
@@ -23,27 +24,29 @@ export default function Header3PM({ showMenu = true }) {
     <>
       <header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          {/* Left: fixed 3PM brand */}
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full border border-cyan-400/70 flex items-center justify-center text-[11px] font-semibold text-cyan-300">
-              3PM
+          {/* Marca / Group block */}
+  
+            // 🔹 Modo 3PM (por defecto, sin grupo)
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full border border-cyan-400/70 flex items-center justify-center text-[11px] font-semibold text-cyan-300">
+                3PM
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-[10px] uppercase tracking-[0.22em] text-slate-400">
+                  3PMERS
+                </span>
+                <span className="text-[11px] text-slate-500">NA homegroup</span>
+              </div>
             </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-[10px] uppercase tracking-[0.22em] text-slate-400">
-                3PMERS
-              </span>
-              <span className="text-[11px] text-slate-500">NA homegroup</span>
-            </div>
-          </div>
 
-          {/* Center/right: slogan */}
+          {/* Slogan */}
           <div className="flex-1 text-right">
             <p className="text-[11px] text-cyan-300 font-medium leading-snug">
               {slogan}
             </p>
           </div>
 
-          {/* Menu button */}
+          {/* Botón menú */}
           {showMenu && (
             <button
               type="button"
