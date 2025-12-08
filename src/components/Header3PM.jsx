@@ -25,8 +25,7 @@ export default function Header3PM({ showMenu = true }) {
       <header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-3">
           {/* Marca / Group block */}
-  
-            // 🔹 Modo 3PM (por defecto, sin grupo)
+
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-full border border-cyan-400/70 flex items-center justify-center text-[11px] font-semibold text-cyan-300">
                 3PM
