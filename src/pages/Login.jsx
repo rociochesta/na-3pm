@@ -38,27 +38,29 @@ export default function Login() {
       // 🔹 2) (Opcional pero recomendado) Enviar a tu backend para crear/actualizar el usuario en la BD
       // Ajusta la URL según tu backend (`/api/members/self-register` es solo un ejemplo)
       try {
-        const res = await fetch("/api/members/self-register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: trimmedName,
-            groupCode: group || null,
-            // password no es requerida todavía, así que no la usamos
-          }),
-        });
+const res = await fetch("/.netlify/functions/register-member", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    name: trimmedName,
+    groupId: 1, // 3PM group
+  }),
+});
+
 
         if (!res.ok) {
           console.warn("Failed to save user in DB:", res.status);
         } else {
-          const data = await res.json();
-          // Si tu backend devuelve algo como { id, name, ... }
-          if (data && data.id) {
-            window.localStorage.setItem("na_memberId", String(data.id));
-          }
-          console.log("Saved user in DB:", data);
+       
+ const data = await res.json();
+
+// 👇 ESTA ES LA PARTE QUE PREGUNTASTE
+if (data && data.id) {
+  window.localStorage.setItem("na_memberId", String(data.id));
+  window.localStorage.setItem("na_memberName", trimmedName); // opcional
+}
+
+console.log("Saved user in DB:", data);
         }
       } catch (dbErr) {
         console.warn("Error calling backend for user:", dbErr);

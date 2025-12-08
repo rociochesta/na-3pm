@@ -16,6 +16,7 @@ import {
   Users, // Group milestones
   Wrench, // Today’s tool
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import HeaderGeneric from "../components/HeaderGeneric.jsx";
 import NeonBadge from "../components/NeonBadge.jsx";
 import { motion } from "framer-motion";
@@ -47,6 +48,7 @@ const ICONS = {
 };
 
 export default function Home() {
+    const navigate = useNavigate();
   const [soberDate, setSoberDate] = useState(null);
   const [daysClean, setDaysClean] = useState(null);
   const [punchline] = useState(() => getPunchline());
@@ -189,7 +191,14 @@ export default function Home() {
   const allNextMilestones = getGroupAllNextMilestones(groupMembers);
 
   const lastGratitude = gratitudeStats.lastText;
+ useEffect(() => {
+    const memberId = window.localStorage.getItem("na_memberId");
 
+    if (!memberId) {
+      // Nada guardado → mandar a Login
+      navigate("/login", { replace: true });
+    }
+  }, []);
   function handleFullReset() {
     const yes = window.confirm(
       "This will erase ALL your NA data (gratitudes, clean date, etc.). Continue?"
