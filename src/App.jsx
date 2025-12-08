@@ -13,26 +13,114 @@ import BossAccess from "./pages/BossAccess.jsx";
 import Login from "./pages/Login.jsx";
 import Debug from "./pages/Debug.jsx";
 
+/**
+ * Redirects to /login if the user doesn't have a local profile.
+ */
+function RequireProfile({ children }) {
+  const hasProfile = localStorage.getItem("na_userProfile");
+  const memberId = localStorage.getItem("na_memberId");
 
+  // If BOTH profile and memberId are missing → new user → force login
+  if (!hasProfile && !memberId) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-                <Route path="/login" element={<Login />} />
-                  <Route path="/debug" element={<Debug />} />      
-        <Route path="/" element={<Home />} />
-        <Route path="/sober-date" element={<SoberDate />} />
-        <Route path="/gratitudes/new" element={<AddGratitude />} />
-        <Route path="/gratitudes" element={<Gratitudes />} />
-        <Route path="/chips" element={<Chips />} />
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/debug" element={<Debug />} />
+
+        {/* Protected routes */}
+        <Route
+          path="/"
+          element={
+            <RequireProfile>
+              <Home />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/sober-date"
+          element={
+            <RequireProfile>
+              <SoberDate />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/gratitudes/new"
+          element={
+            <RequireProfile>
+              <AddGratitude />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/gratitudes"
+          element={
+            <RequireProfile>
+              <Gratitudes />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/chips"
+          element={
+            <RequireProfile>
+              <Chips />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/my-why"
+          element={
+            <RequireProfile>
+              <MyWhy />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/jft"
+          element={
+            <RequireProfile>
+              <JFT />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <RequireProfile>
+              <Admin />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/boss"
+          element={
+            <RequireProfile>
+              <BossAccess />
+            </RequireProfile>
+          }
+        />
+
+        {/* Aliases & fallbacks */}
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/boss" element={<BossAccess />} />
-        <Route path="/my-why" element={<MyWhy />} />
-                <Route path="/jft" element={<JFT />} />
-
       </Routes>
     </BrowserRouter>
   );

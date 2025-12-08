@@ -191,14 +191,18 @@ export default function Home() {
   const allNextMilestones = getGroupAllNextMilestones(groupMembers);
 
   const lastGratitude = gratitudeStats.lastText;
- useEffect(() => {
-    const memberId = window.localStorage.getItem("na_memberId");
+ 
+useEffect(() => {
+  const profile = window.localStorage.getItem("na_userProfile");
+  const memberId = window.localStorage.getItem("na_memberId");
 
-    if (!memberId) {
-      // Nada guardado → mandar a Login
-      navigate("/login", { replace: true });
-    }
-  }, []);
+  console.log("Guard check → profile:", profile, "memberId:", memberId);
+
+  // ✅ Si NO hay perfil NI id → mandar a login
+  if (!profile && !memberId) {
+    navigate("/login", { replace: true });
+  }
+}, [navigate]);
   function handleFullReset() {
     const yes = window.confirm(
       "This will erase ALL your NA data (gratitudes, clean date, etc.). Continue?"
