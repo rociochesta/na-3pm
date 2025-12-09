@@ -236,30 +236,58 @@ export default function Home() {
   const lastGratitude = gratitudeStats.lastText;
  
 useEffect(() => {
-  const profile = window.localStorage.getItem("na_userProfile");
+  const profileRaw = window.localStorage.getItem("na_userProfile");
   const memberId = window.localStorage.getItem("na_memberId");
 
-  console.log("Guard check → profile:", profile, "memberId:", memberId);
+  console.log("Guard check → profile:", profileRaw, "memberId:", memberId);
 
-  // ✅ Si NO hay perfil NI id → mandar a login
-  if (!profile && !memberId) {
+  // Si no hay nada de nada → mandar a login
+  if (!profileRaw && !memberId) {
     navigate("/login", { replace: true });
+    return;
+  }
+
+  // Si HAY perfil pero NO memberId → intentar crearlo en la BD
+  if (profileRaw && !memberId) {
+    const profile = JSON.parse(profileRaw);
+
+    (async () => {
+      try {
+        const res = await fetch("/.netlify/functions/register-member", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: profile.name,
+            groupId: 1, // 3PM
+          }),
+        });
+
+        const text = await res.text();
+        if (!res.ok) {
+          console.warn("Auto-register member failed:", res.status, text);
+          return;
+        }
+
+        let data = null;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = null;
+        }
+
+        if (data && data.id) {
+          window.localStorage.setItem("na_memberId", String(data.id));
+          console.log("Auto-saved na_memberId:", data.id);
+        } else {
+          console.warn("register-member (auto) sin id en respuesta:", text);
+        }
+      } catch (err) {
+        console.warn("Error calling register-member (auto):", err);
+      }
+    })();
   }
 }, [navigate]);
-  function handleFullReset() {
-    const yes = window.confirm(
-      "This will erase ALL your NA data (gratitudes, clean date, etc.). Continue?"
-    );
-    if (!yes) return;
 
-    try {
-      window.localStorage.clear();
-    } catch (err) {
-      console.error("Reset error:", err);
-    }
-
-    window.location.reload();
-  }
 
   function handleToggleToolDone() {
     const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
