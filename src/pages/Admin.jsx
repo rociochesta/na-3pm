@@ -213,6 +213,48 @@ export default function Admin() {
             </button>
           </form>
         </section>
+        {/* Danger zone */}
+<section className="space-y-2 border-t border-rose-900/40 pt-6">
+  <h2 className="text-[12px] text-rose-400 font-semibold uppercase tracking-[0.16em]">
+    Danger zone
+  </h2>
+
+  <button
+    type="button"
+    className="w-full text-[11px] border border-rose-500 text-rose-300 rounded-lg py-2 hover:bg-rose-900/30 transition-colors"
+    onClick={async () => {
+      const yes = window.confirm(
+        "This will delete YOUR profile, clean date, why, gratitudes and remove you from the group.\n\nIt does NOT delete other members.\n\nAre you absolutely sure?"
+      );
+      if (!yes) return;
+
+      try {
+        const memberId = window.localStorage.getItem("na_memberId");
+
+        if (memberId) {
+          await fetch("/.netlify/functions/delete-member", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ memberId: Number(memberId) }),
+          });
+        }
+
+        window.localStorage.clear();
+        window.location.href = "/login";
+      } catch (err) {
+        console.error("Full reset failed:", err);
+        alert("Something went wrong deleting your profile.");
+      }
+    }}
+  >
+    Delete my profile
+  </button>
+
+  <p className="text-[10px] text-slate-500">
+    This is irreversible. Your data dies, your story doesn't.
+  </p>
+</section>
+
       </main>
     </div>
   );
