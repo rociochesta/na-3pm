@@ -5,7 +5,7 @@ const connectionString =
   process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
 
 export const handler = async (event) => {
-  // Aceptamos GET y POST
+  // Aceptamos GET y POST (tu hook la llama con GET)
   if (event.httpMethod !== "GET" && event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -32,7 +32,6 @@ export const handler = async (event) => {
 
     console.log("get-guided-tools: Connected to DB, running query...");
 
-    // OJO: aquí ya NO usamos t.slug, ni min_days / max_days
     const result = await client.query(
       `
       SELECT
@@ -41,14 +40,14 @@ export const handler = async (event) => {
         t.how,
         t.why,
         t.punchlines,
-        t.is_active,
-        c.id   AS category_id,
-        c.slug AS category_slug,
-        c.name AS category_name
+        t.category_id,
+        c.name        AS category_name,
+        c.range_start AS category_range_start,
+        c.range_end   AS category_range_end,
+        c.group_id    AS category_group_id
       FROM tools t
       LEFT JOIN tool_categories c
         ON c.id = t.category_id
-      WHERE t.is_active = TRUE
       ORDER BY t.id ASC;
       `
     );
@@ -57,19 +56,26 @@ export const handler = async (event) => {
 
     const tools = result.rows.map((row) => ({
       id: row.id,
-      slug: null, // stub por ahora, porque no existe la columna
+      slug: null, // aún no usamos slug
       title: row.title,
-      how: row.how || [],        // json/jsonb
+      // how / punchlines son _text → arrays de texto
+      how: row.how || [],
       why: row.why || "",
       punchlines: row.punchlines || [],
-      minDays: null,             // stub: no usamos min/max días todavía
-      maxDays: null,
-      isActive: row.is_active,
+      // usamos el rango de la categoría como min/maxDays
+      minDays:
+        row.category_range_start !== null
+          ? row.category_range_start
+          : null,
+      maxDays:
+        row.category_range_end !== null ? row.category_range_end : null,
+      isActive: true, // por ahora todas activas
       category: row.category_id
         ? {
             id: row.category_id,
-            slug: row.category_slug,
+            slug: null, // tampoco hay slug en tool_categories
             name: row.category_name,
+            groupId: row.category_group_id,
           }
         : null,
     }));
