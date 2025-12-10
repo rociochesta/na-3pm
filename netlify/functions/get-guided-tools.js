@@ -1,7 +1,8 @@
 // netlify/functions/get-guided-tools.js
 import { Client } from "pg";
 
-const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+const connectionString =
+  process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
 
 export const handler = async (event) => {
   // Aceptamos GET y POST
@@ -20,7 +21,8 @@ export const handler = async (event) => {
       return {
         statusCode: 500,
         body: JSON.stringify({
-          error: "Missing DB connection string",
+          error: "Internal server error",
+          details: "Missing DATABASE_URL / SUPABASE_DB_URL",
         }),
       };
     }
@@ -30,7 +32,7 @@ export const handler = async (event) => {
 
     console.log("get-guided-tools: Connected to DB, running query...");
 
-    // ⚠️ Ajusta nombres de tabla/columnas si es necesario
+    // ⚠️ AJUSTA nombres de tabla/columnas si es necesario
     const result = await client.query(
       `
       SELECT
@@ -81,8 +83,6 @@ export const handler = async (event) => {
     };
   } catch (err) {
     console.error("get-guided-tools error:", err);
-
-    // TEMP: devolvemos mensaje para ver el error desde el navegador
     return {
       statusCode: 500,
       body: JSON.stringify({

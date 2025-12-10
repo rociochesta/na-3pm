@@ -1,86 +1,61 @@
-// netlify/functions/get-guided-tools.js
+// netlify/functions/get-member.js
 import { Client } from "pg";
 
-const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+const connectionString =
+  process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
 
 export const handler = async (event) => {
-  // Aceptamos GET y POST (por si acaso)
-  if (event.httpMethod !== "GET" && event.httpMethod !== "POST") {
+  if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
       body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
 
-  let client;
-
   try {
-    client = new Client({ connectionString });
+    const body = JSON.parse(event.body || "{}");
+    const { memberId } = body;
+
+    if (!memberId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "memberId is required" }),
+      };
+    }
+
+    const client = new Client({ connectionString });
     await client.connect();
 
-    // ⚠️ AJUSTA nombres de tabla/columnas si los tuyos son distintos:
-    // - tools
-    // - tool_categories
-    // - slug, title, how, why, punchlines, min_days, max_days, is_active, category_id
     const result = await client.query(
       `
-      SELECT
-        t.id,
-        t.slug,
-        t.title,
-        t.how,
-        t.why,
-        t.punchlines,
-        t.min_days,
-        t.max_days,
-        t.is_active,
-        c.id   AS category_id,
-        c.slug AS category_slug,
-        c.name AS category_name
-      FROM tools t
-      LEFT JOIN tool_categories c
-        ON c.id = t.category_id
-      WHERE t.is_active = TRUE
-      ORDER BY t.id ASC;
-      `
+      SELECT id, display_name, sober_date
+      FROM group_members
+      WHERE id = $1;
+      `,
+      [memberId]
     );
 
-    const tools = result.rows.map((row) => ({
-      id: row.id,
-      slug: row.slug || null,
-      title: row.title,
-      how: row.how || [], // json/jsonb en la tabla
-      why: row.why || "",
-      punchlines: row.punchlines || [],
-      minDays: row.min_days ?? null,
-      maxDays: row.max_days ?? null,
-      isActive: row.is_active,
-      category: row.category_id
-        ? {
-            id: row.category_id,
-            slug: row.category_slug,
-            name: row.category_name,
-          }
-        : null,
-    }));
+    await client.end();
+
+    if (result.rowCount === 0) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "Member not found" }),
+      };
+    }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ tools }),
+      body: JSON.stringify(result.rows[0]),
     };
   } catch (err) {
-    console.error("get-guided-tools error:", err);
+    console.error("get-member error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
+      body: JSON.stringify({
+        error: "Internal server error",
+        details: err.message,
+      }),
     };
-  } finally {
-    if (client) {
-      try {
-        await client.end();
-      } catch (e) {
-        // ignore
-      }
-    }
   }
 };
