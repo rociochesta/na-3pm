@@ -289,32 +289,46 @@ useEffect(() => {
 }, [navigate]);
 
 
-  function handleToggleToolDone() {
-    const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    const doneKey = `na_toolDone_${todayKey}`;
-    const punchKey = `na_toolDoneLine_${todayKey}`;
+ function handleToggleToolDone() {
+  const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const doneKey = `na_toolDone_${todayKey}`;
+  const punchKey = `na_toolDoneLine_${todayKey}`;
 
-    setToolDone((prev) => {
-      const next = !prev;
+  setToolDone((prev) => {
+    const next = !prev;
 
-      try {
-        if (next) {
-          window.localStorage.setItem(doneKey, "1");
-          const line = getRandomToolPunchline();
-          setToolDoneLine(line);
-          window.localStorage.setItem(punchKey, line);
+    try {
+      if (next) {
+        window.localStorage.setItem(doneKey, "1");
+
+        // 🔹 1) Intentar sacar punchline desde la tool de hoy (DB)
+        let line = "";
+        if (
+          todaysTool &&
+          Array.isArray(todaysTool.punchlines) &&
+          todaysTool.punchlines.length > 0
+        ) {
+          const i = Math.floor(Math.random() * todaysTool.punchlines.length);
+          line = todaysTool.punchlines[i];
         } else {
-          window.localStorage.removeItem(doneKey);
-          window.localStorage.removeItem(punchKey);
-          setToolDoneLine("");
+          // 🔹 2) Fallback: lista vieja de punchlines genéricos
+          line = getRandomToolPunchline();
         }
-      } catch {
-        // ignore
-      }
 
-      return next;
-    });
-  }
+        setToolDoneLine(line);
+        window.localStorage.setItem(punchKey, line);
+      } else {
+        window.localStorage.removeItem(doneKey);
+        window.localStorage.removeItem(punchKey);
+        setToolDoneLine("");
+      }
+    } catch {
+      // ignore
+    }
+
+    return next;
+  });
+}
 const hasGroup = Boolean(userProfile?.groupCode);
 
   return (
@@ -477,17 +491,23 @@ const hasGroup = Boolean(userProfile?.groupCode);
                       </div>
 
                       {/* link para abrir el modal guiado (solo si hay tool) */}
-                      {todaysTool && (
-                        <div className="flex justify-end pt-1">
-                          <button
-                            type="button"
-                            onClick={() => setIsToolGuideOpen(true)}
-                            className="text-[10px] text-slate-500 hover:text-cyan-300 underline underline-offset-2"
-                          >
-                            How do I do this?
-                          </button>
-                        </div>
-                      )}
+{/* link para abrir el modal guiado (solo si hay tool) */}
+{todaysTool && (
+  <div className="flex justify-end pt-1">
+    <button
+      type="button"
+      onClick={() => setIsToolGuideOpen(true)}
+      className="inline-flex items-center gap-1 rounded-full border border-slate-700 px-2.5 py-1 text-[10px] text-slate-300 hover:border-cyan-400 hover:text-cyan-200 hover:bg-cyan-400/5 transition-colors"
+    >
+      {/* círculo con ? */}
+      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-500 text-[9px]">
+        ?
+      </span>
+      <span>How do I do this?</span>
+    </button>
+  </div>
+)}
+
                     </>
                   )}
                 </motion.div>
