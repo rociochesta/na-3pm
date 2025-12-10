@@ -43,8 +43,7 @@ export const handler = async (event) => {
         t.category_id,
         c.name        AS category_name,
         c.range_start AS category_range_start,
-        c.range_end   AS category_range_end,
-        c.group_id    AS category_group_id
+        c.range_end   AS category_range_end
       FROM tools t
       LEFT JOIN tool_categories c
         ON c.id = t.category_id
@@ -58,24 +57,22 @@ export const handler = async (event) => {
       id: row.id,
       slug: null, // aún no usamos slug
       title: row.title,
-      // how / punchlines son _text → arrays de texto
-      how: row.how || [],
+      how: row.how || [],        // _text → array
       why: row.why || "",
       punchlines: row.punchlines || [],
-      // usamos el rango de la categoría como min/maxDays
+      // rango de días viene de la categoría
       minDays:
         row.category_range_start !== null
           ? row.category_range_start
           : null,
       maxDays:
         row.category_range_end !== null ? row.category_range_end : null,
-      isActive: true, // por ahora todas activas
+      isActive: true,
       category: row.category_id
         ? {
             id: row.category_id,
-            slug: null, // tampoco hay slug en tool_categories
+            slug: null,
             name: row.category_name,
-            groupId: row.category_group_id,
           }
         : null,
     }));
