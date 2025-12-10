@@ -4,7 +4,7 @@ import { Client } from "pg";
 const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
 
 export const handler = async (event) => {
-  // Aceptamos GET y POST (por si acaso)
+  // Aceptamos GET y POST
   if (event.httpMethod !== "GET" && event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -15,13 +15,22 @@ export const handler = async (event) => {
   let client;
 
   try {
+    if (!connectionString) {
+      console.error("get-guided-tools: MISSING connectionString env");
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: "Missing DB connection string",
+        }),
+      };
+    }
+
     client = new Client({ connectionString });
     await client.connect();
 
-    // ⚠️ AJUSTA nombres de tabla/columnas si los tuyos son distintos:
-    // - tools
-    // - tool_categories
-    // - slug, title, how, why, punchlines, min_days, max_days, is_active, category_id
+    console.log("get-guided-tools: Connected to DB, running query...");
+
+    // ⚠️ Ajusta nombres de tabla/columnas si es necesario
     const result = await client.query(
       `
       SELECT
@@ -45,11 +54,13 @@ export const handler = async (event) => {
       `
     );
 
+    console.log("get-guided-tools: rows:", result.rowCount);
+
     const tools = result.rows.map((row) => ({
       id: row.id,
       slug: row.slug || null,
       title: row.title,
-      how: row.how || [], // json/jsonb en la tabla
+      how: row.how || [], // json/jsonb
       why: row.why || "",
       punchlines: row.punchlines || [],
       minDays: row.min_days ?? null,
@@ -70,15 +81,20 @@ export const handler = async (event) => {
     };
   } catch (err) {
     console.error("get-guided-tools error:", err);
+
+    // TEMP: devolvemos mensaje para ver el error desde el navegador
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
+      body: JSON.stringify({
+        error: "Internal server error",
+        details: err.message,
+      }),
     };
   } finally {
     if (client) {
       try {
         await client.end();
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
