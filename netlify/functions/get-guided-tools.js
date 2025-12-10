@@ -32,18 +32,15 @@ export const handler = async (event) => {
 
     console.log("get-guided-tools: Connected to DB, running query...");
 
-    // ⚠️ AJUSTA nombres de tabla/columnas si es necesario
+    // OJO: aquí ya NO usamos t.slug, ni min_days / max_days
     const result = await client.query(
       `
       SELECT
         t.id,
-        t.slug,
         t.title,
         t.how,
         t.why,
         t.punchlines,
-        t.min_days,
-        t.max_days,
         t.is_active,
         c.id   AS category_id,
         c.slug AS category_slug,
@@ -60,13 +57,13 @@ export const handler = async (event) => {
 
     const tools = result.rows.map((row) => ({
       id: row.id,
-      slug: row.slug || null,
+      slug: null, // stub por ahora, porque no existe la columna
       title: row.title,
-      how: row.how || [], // json/jsonb
+      how: row.how || [],        // json/jsonb
       why: row.why || "",
       punchlines: row.punchlines || [],
-      minDays: row.min_days ?? null,
-      maxDays: row.max_days ?? null,
+      minDays: null,             // stub: no usamos min/max días todavía
+      maxDays: null,
       isActive: row.is_active,
       category: row.category_id
         ? {

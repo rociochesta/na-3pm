@@ -22,20 +22,17 @@ export const handler = async (event) => {
         body: JSON.stringify({ error: "memberId is required" }),
       };
     }
+const result = await client.query(
+  `
+  SELECT id, name AS display_name, sober_date
+  FROM group_members
+  WHERE id = $1;
+  `,
+  [memberId]
+);
 
-    const client = new Client({ connectionString });
-    await client.connect();
 
-    const result = await client.query(
-      `
-      SELECT id, display_name, sober_date
-      FROM group_members
-      WHERE id = $1;
-      `,
-      [memberId]
-    );
-
-    await client.end();
+    await Client.end();
 
     if (result.rowCount === 0) {
       return {
