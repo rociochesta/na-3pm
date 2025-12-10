@@ -413,107 +413,108 @@ const hasGroup = Boolean(userProfile?.groupCode);
           </section>
 
           {/* TODAY'S TOOL (card estándar) */}
-          <section>
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 space-y-2">
+        <section>
+  <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 space-y-2">
+    <button
+      type="button"
+      onClick={() => setIsToolOpen((p) => !p)}
+      className="w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-500"
+    >
+      <div className="flex items-center gap-2">
+        <Wrench size={13} className="text-cyan-400" />
+        <span>Today&apos;s tool</span>
+      </div>
+
+      {isToolOpen ? (
+        <ChevronUp size={14} className="text-slate-400" />
+      ) : (
+        <ChevronDown size={14} className="text-slate-400" />
+      )}
+    </button>
+
+    {isToolOpen && (
+      <motion.div
+        key="tool-content"
+        initial={{ opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -4 }}
+        transition={{ duration: 0.18 }}
+        className="space-y-2 pt-1"
+      >
+        <p className="text-[11px] text-slate-400">
+          One tiny action for messy days.
+        </p>
+
+        {/* estados del hook: loading / error / ok */}
+        {toolLoading ? (
+          <p className="text-[11px] text-slate-500 italic">
+            Loading today&apos;s tool...
+          </p>
+        ) : toolError ? (
+          <p className="text-[11px] text-rose-400">
+            Couldn&apos;t load today&apos;s tool.
+          </p>
+        ) : (
+          <>
+            {/* título de la tool, ahora desde el objeto */}
+            <p
+              className={`text-sm leading-snug ${
+                toolDone ? "text-cyan-200" : "text-slate-200"
+              }`}
+            >
+              {todaysToolTitle}
+            </p>
+
+            {/* botón I did this / Done for today */}
+            <div className="flex justify-end pt-2">
               <button
                 type="button"
-                onClick={() => setIsToolOpen((p) => !p)}
-                className="w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-500"
-              >
-                <div className="flex items-center gap-2">
-                  <Wrench size={13} className="text-cyan-400" />
-                  <span>Today&apos;s tool</span>
-                </div>
-
-                {isToolOpen ? (
-                  <ChevronUp size={14} className="text-slate-400" />
-                ) : (
-                  <ChevronDown size={14} className="text-slate-400" />
-                )}
-              </button>
-
-              {isToolOpen && (
-                <motion.div
-                  key="tool-content"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.18 }}
-                  className="space-y-2 pt-1"
-                >
-                  <p className="text-[11px] text-slate-400">
-                    One tiny action for messy days.
-                  </p>
-
-                  {/* estados del hook: loading / error / ok */}
-                  {toolLoading ? (
-                    <p className="text-[11px] text-slate-500 italic">
-                      Loading today&apos;s tool...
-                    </p>
-                  ) : toolError ? (
-                    <p className="text-[11px] text-rose-400">
-                      Couldn&apos;t load today&apos;s tool.
-                    </p>
-                  ) : (
-                    <>
-                      {/* título de la tool, ahora desde el objeto */}
-                      <p
-                        className={`text-sm leading-snug ${
-                          toolDone ? "text-cyan-200" : "text-slate-200"
-                        }`}
-                      >
-                        {todaysToolTitle}
-                      </p>
-
-                      {/* botón I did this + punchline cuando está done */}
-                      <div className="flex items-center justify-between gap-2 pt-1">
-                        <p className="text-[10px] text-cyan-400 italic min-h-[1.25rem]">
-                          {toolDone && toolDoneLine ? toolDoneLine : ""}
-                        </p>
-
-                        <button
-                          type="button"
-                          onClick={handleToggleToolDone}
-                          className={`ml-auto inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors
+                onClick={handleToggleToolDone}
+                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors
                   ${
                     toolDone
                       ? "border-cyan-400 bg-cyan-400/10 text-cyan-200"
                       : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
                   }`}
-                        >
-                          <span className="text-[11px]">
-                            {toolDone ? "✓" : "○"}
-                          </span>
-                          <span>
-                            {toolDone ? "Done for today" : "I did this"}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* link para abrir el modal guiado (solo si hay tool) */}
-{/* link para abrir el modal guiado (solo si hay tool) */}
-{todaysTool && (
-  <div className="flex justify-end pt-1">
-    <button
-      type="button"
-      onClick={() => setIsToolGuideOpen(true)}
-      className="inline-flex items-center gap-1 rounded-full border border-slate-700 px-2.5 py-1 text-[10px] text-slate-300 hover:border-cyan-400 hover:text-cyan-200 hover:bg-cyan-400/5 transition-colors"
-    >
-      {/* círculo con ? */}
-      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-500 text-[9px]">
-        ?
-      </span>
-      <span>How do I do this?</span>
-    </button>
-  </div>
-)}
-
-                    </>
-                  )}
-                </motion.div>
-              )}
+              >
+                <span className="text-[11px]">
+                  {toolDone ? "✓" : "○"}
+                </span>
+                <span>
+                  {toolDone ? "Done for today" : "I did this"}
+                </span>
+              </button>
             </div>
-          </section>
+
+            {/* punchline SOLO cuando está done */}
+            {toolDone && toolDoneLine && (
+              <p className="text-[11px] text-cyan-300 italic pt-2">
+                {toolDoneLine}
+              </p>
+            )}
+
+            {/* link para abrir el modal guiado (solo si hay tool y aún no está done) */}
+            {!toolDone && todaysTool && (
+              <div className="flex justify-end pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsToolGuideOpen(true)}
+                  className="inline-flex items-center gap-1 text-[10px] text-slate-400 underline underline-offset-2 hover:text-cyan-300"
+                >
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-500 text-[9px]">
+                    ?
+                  </span>
+                  <span>How do I do this?</span>
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </motion.div>
+    )}
+  </div>
+</section>
+
 
           {/* 🔹 Just For Today block */}
           <section className="space-y-2 pt-2">
