@@ -1,7 +1,6 @@
 // src/components/HeaderGeneric.jsx
 import React, { useState } from "react";
 import { Menu } from "lucide-react";
-import MenuOverlay from "./MenuOverlay.jsx";
 import { getSlogan } from "../utils/getSlogan.js";
 
 export default function HeaderGeneric({ group, showMenu = true }) {
@@ -31,19 +30,11 @@ export default function HeaderGeneric({ group, showMenu = true }) {
           </div>
 
           {/* Menu button */}
-          {showMenu && (
-            <button
-              type="button"
-              onClick={() => setIsMenuOpen(true)}
-              className="ml-1 p-1 rounded-full border border-slate-700 text-slate-400 hover:text-cyan-300 hover:border-cyan-400/70 transition-colors"
-            >
-              <Menu size={15} />
-            </button>
-          )}
+    
         </div>
       </header>
 
-      {isMenuOpen && <MenuOverlay onClose={() => setIsMenuOpen(false)} />}
+
     </>
   );
 }
