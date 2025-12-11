@@ -82,6 +82,12 @@ export default function Header3PM({ showMenu = true }) {
             )}
           </button>
         )}
+        {isProfileMenuOpen && (
+  <ProfileMenu
+    userProfile={userProfile}
+    onClose={() => setIsProfileMenuOpen(false)}
+  />
+)}
       </div>
     </header>
   );
