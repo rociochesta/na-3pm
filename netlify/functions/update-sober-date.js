@@ -1,22 +1,11 @@
 // netlify/functions/update-sober-date.js
-const { Client } = require("pg");
+import { pool } from "./_db.js";
 
-const connectionString =
-  process.env.DATABASE_URL ;
-
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
       body: JSON.stringify({ error: "Method not allowed" }),
-    };
-  }
-
-  if (!connectionString) {
-    console.error("❌ No DATABASE_URL / SUPABASE_DB_URL env var found");
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Missing DATABASE_URL env var" }),
     };
   }
 
@@ -40,14 +29,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const client = new Client({
-      connectionString,
-      ssl: { rejectUnauthorized: false }, // 👈 importante para Supabase
-    });
-
-    await client.connect();
-
-    const result = await client.query(
+    const result = await pool.query(
       `
       UPDATE group_members
       SET sober_date = $2
@@ -56,8 +38,6 @@ exports.handler = async (event) => {
       `,
       [memberId, soberDate]
     );
-
-    await client.end();
 
     if (result.rowCount === 0) {
       return {
@@ -73,10 +53,13 @@ exports.handler = async (event) => {
       body: JSON.stringify(result.rows[0]),
     };
   } catch (err) {
-    console.error("💥 update-sober-date error:", err);
+    console.error("update-sober-date error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error", detail: err.message }),
+      body: JSON.stringify({
+        error: "Internal server error",
+        detail: err.message,
+      }),
     };
   }
 };

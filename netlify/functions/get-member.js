@@ -1,8 +1,5 @@
 // netlify/functions/get-member.js
-import { Client } from "pg";
-
-const connectionString =
-  process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+import { pool } from "./_db.js";
 
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -12,20 +9,7 @@ export const handler = async (event) => {
     };
   }
 
-  let client;
-
   try {
-    if (!connectionString) {
-      console.error("get-member: MISSING connectionString env");
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error: "Internal server error",
-          details: "Missing DATABASE_URL / SUPABASE_DB_URL",
-        }),
-      };
-    }
-
     const body = JSON.parse(event.body || "{}");
     const { memberId } = body;
 
@@ -36,10 +20,7 @@ export const handler = async (event) => {
       };
     }
 
-    client = new Client({ connectionString });
-    await client.connect();
-
-    const result = await client.query(
+    const result = await pool.query(
       `
       SELECT id, display_name, sober_date
       FROM group_members
@@ -68,13 +49,5 @@ export const handler = async (event) => {
         details: err.message,
       }),
     };
-  } finally {
-    if (client) {
-      try {
-        await client.end();
-      } catch {
-        // ignore
-      }
-    }
   }
 };

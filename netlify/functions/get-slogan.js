@@ -1,9 +1,7 @@
 // netlify/functions/get-slogan.js
-const { Client } = require("pg");
+import { pool } from "./_db.js";
 
-const connectionString = process.env.DATABASE_URL;
-
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== "GET") {
     return {
       statusCode: 405,
@@ -11,26 +9,11 @@ exports.handler = async (event) => {
     };
   }
 
-  if (!connectionString) {
-    console.error("❌ No DATABASE_URL env var found");
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Missing DATABASE_URL env var" }),
-    };
-  }
-
   // 👇 Ajusta este group_id según tu setup
   const GROUP_ID = 1;
 
   try {
-    const client = new Client({
-      connectionString,
-      ssl: { rejectUnauthorized: false }, // necesario para Supabase
-    });
-
-    await client.connect();
-
-    const result = await client.query(
+    const result = await pool.query(
       `
       SELECT text
       FROM group_slogans
@@ -41,9 +24,7 @@ exports.handler = async (event) => {
       [GROUP_ID]
     );
 
-    await client.end();
-
-    if (result.rows.length === 0) {
+    if (result.rowCount === 0) {
       console.warn("⚠️ No slogans in DB — returning fallback");
       return {
         statusCode: 200,
@@ -61,7 +42,10 @@ exports.handler = async (event) => {
     console.error("💥 get-slogan error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error", detail: err.message }),
+      body: JSON.stringify({
+        error: "Internal server error",
+        detail: err.message,
+      }),
     };
   }
 };

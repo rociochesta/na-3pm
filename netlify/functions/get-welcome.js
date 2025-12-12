@@ -1,39 +1,29 @@
-const { Client } = require("pg");
+// netlify/functions/get-welcome.js
+import { pool } from "./_db.js";
 
-const connectionString = process.env.DATABASE_URL;
-
-exports.handler = async (_event) => {
-  if (!connectionString) {
-    console.error("❌ Missing DATABASE_URL env var");
+export const handler = async (event) => {
+  if (event.httpMethod !== "GET") {
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Missing DATABASE_URL env var" }),
+      statusCode: 405,
+      body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
 
-  const client = new Client({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
-  });
-
   try {
-    await client.connect();
-
-    // 👇 group_id fijo = 1 por ahora
+    // 👇 group_id fijo por ahora
     const groupId = 1;
 
-    const query = `
-      select id, headline, subline
-      from welcome_messages
-      where group_id = $1
-        and is_active = true
-      order by random()
-      limit 1;
-    `;
-
-    const result = await client.query(query, [groupId]);
-
-    await client.end();
+    const result = await pool.query(
+      `
+      SELECT id, headline, subline
+      FROM welcome_messages
+      WHERE group_id = $1
+        AND is_active = true
+      ORDER BY RANDOM()
+      LIMIT 1;
+      `,
+      [groupId]
+    );
 
     if (result.rowCount === 0) {
       console.warn("⚠️ No welcome messages found for group:", groupId);
@@ -56,9 +46,8 @@ exports.handler = async (_event) => {
         subline: row.subline,
       }),
     };
-
   } catch (err) {
-    console.error("💥 get-welcome-message error:", err);
+    console.error("💥 get-welcome error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({

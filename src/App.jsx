@@ -13,10 +13,12 @@ import Admin from "./pages/Admin.jsx";
 import BossAccess from "./pages/BossAccess.jsx";
 import Login from "./pages/Login.jsx";
 import Debug from "./pages/Debug.jsx";
+import ToolQuestionPage from "./pages/ToolQuestionPage.jsx";
 
 // 👇 tools / bottom nav pages
 import ToolsPage from "./pages/Tools.jsx";
 import ToolSectionPage from "./pages/ToolSectionPage.jsx";
+import ToolRunnerPage from "./pages/ToolRunnerPage.jsx"; // ✅ add this
 import GroupPage from "./pages/Group.jsx";
 import MePage from "./pages/Me.jsx";
 
@@ -125,6 +127,24 @@ export default function App() {
             </RequireProfile>
           }
         />
+
+        {/* ✅ tool runner route (stub for now) */}
+        <Route
+          path="/tools/:sectionId/:toolSlug"
+          element={
+            <RequireProfile>
+              <ToolRunnerPage />
+            </RequireProfile>
+          }
+        />
+<Route
+  path="/tools/:sectionId/:toolSlug/:step"
+  element={
+    <RequireProfile>
+      <ToolQuestionPage />
+    </RequireProfile>
+  }
+/>
 
         {/* 👇 bottom nav */}
         <Route

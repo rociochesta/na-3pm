@@ -1,9 +1,7 @@
-const { Client } = require("pg");
+// netlify/functions/register-member.js
+import { pool } from "./_db.js";
 
-const connectionString =
-  process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
-
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -11,17 +9,10 @@ exports.handler = async (event) => {
     };
   }
 
-  if (!connectionString) {
-    console.error("❌ Missing DB URL");
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Missing DB URL env var" }),
-    };
-  }
-
   try {
     const body = JSON.parse(event.body || "{}");
-    const { name, groupId } = body;
+    const name = (body.name || "").trim();
+    const groupId = body.groupId;
 
     console.log("register-member payload:", body);
 
@@ -32,15 +23,8 @@ exports.handler = async (event) => {
       };
     }
 
-    const client = new Client({
-      connectionString,
-      ssl: { rejectUnauthorized: false },
-    });
-
-    await client.connect();
-
     // 1) Buscar si ya existe
-    const existing = await client.query(
+    const existing = await pool.query(
       `
       SELECT id, display_name, sober_date
       FROM group_members
@@ -50,33 +34,34 @@ exports.handler = async (event) => {
       [groupId, name]
     );
 
-    let row;
-
     if (existing.rowCount > 0) {
-      row = existing.rows[0];
+      const row = existing.rows[0];
       console.log("register-member: existing member", row);
-    } else {
-      // 2) Crear nuevo con sober_date = NULL
-      const inserted = await client.query(
-        `
-        INSERT INTO group_members (group_id, display_name, sober_date, created_at)
-        VALUES ($1, $2, NULL, NOW())
-        RETURNING id, display_name, sober_date;
-        `,
-        [groupId, name]
-      );
-      row = inserted.rows[0];
-      console.log("register-member: inserted member", row);
+      return {
+        statusCode: 200,
+        body: JSON.stringify(row),
+      };
     }
 
-    await client.end();
+    // 2) Crear nuevo con sober_date = NULL
+    const inserted = await pool.query(
+      `
+      INSERT INTO group_members (group_id, display_name, sober_date, created_at)
+      VALUES ($1, $2, NULL, NOW())
+      RETURNING id, display_name, sober_date;
+      `,
+      [groupId, name]
+    );
+
+    const row = inserted.rows[0];
+    console.log("register-member: inserted member", row);
 
     return {
       statusCode: 200,
       body: JSON.stringify(row),
     };
   } catch (err) {
-    console.error("💥 register-member error:", err);
+    console.error("register-member error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({

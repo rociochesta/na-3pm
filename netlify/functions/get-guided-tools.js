@@ -1,8 +1,5 @@
 // netlify/functions/get-guided-tools.js
-import { Client } from "pg";
-
-const connectionString =
-  process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+import { pool } from "./_db.js";
 
 export const handler = async (event) => {
   // Aceptamos GET y POST (tu hook la llama con GET)
@@ -13,27 +10,10 @@ export const handler = async (event) => {
     };
   }
 
-  let client;
-
   try {
-    if (!connectionString) {
-      console.error("get-guided-tools: MISSING connectionString env");
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error: "Internal server error",
-          details: "Missing DATABASE_URL / SUPABASE_DB_URL",
-        }),
-      };
-    }
+    console.log("get-guided-tools: running query...");
 
-    client = new Client({ connectionString });
-    await client.connect();
-
-    console.log("get-guided-tools: Connected to DB, running query...");
-
-    const result = await client.query(
-      `
+    const result = await pool.query(`
       SELECT
         t.id,
         t.title,
@@ -48,8 +28,7 @@ export const handler = async (event) => {
       LEFT JOIN tool_categories c
         ON c.id = t.category_id
       ORDER BY t.id ASC;
-      `
-    );
+    `);
 
     console.log("get-guided-tools: rows:", result.rowCount);
 
@@ -57,16 +36,13 @@ export const handler = async (event) => {
       id: row.id,
       slug: null, // aún no usamos slug
       title: row.title,
-      how: row.how || [],        // _text → array
+      how: row.how || [], // _text → array
       why: row.why || "",
       punchlines: row.punchlines || [],
       // rango de días viene de la categoría
       minDays:
-        row.category_range_start !== null
-          ? row.category_range_start
-          : null,
-      maxDays:
-        row.category_range_end !== null ? row.category_range_end : null,
+        row.category_range_start !== null ? row.category_range_start : null,
+      maxDays: row.category_range_end !== null ? row.category_range_end : null,
       isActive: true,
       category: row.category_id
         ? {
@@ -90,13 +66,5 @@ export const handler = async (event) => {
         details: err.message,
       }),
     };
-  } finally {
-    if (client) {
-      try {
-        await client.end();
-      } catch {
-        // ignore
-      }
-    }
   }
 };

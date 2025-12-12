@@ -1,7 +1,5 @@
 // netlify/functions/members-self-register.js
-import { Client } from "pg";
-
-const connectionString = process.env.DATABASE_URL; // el KEY que pusiste en Netlify
+import { pool } from "./_db.js";
 
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -13,21 +11,17 @@ export const handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body || "{}");
-    const { name, groupCode } = body;
+    const name = (body.name || "").trim();
+    const groupCode = body.groupCode ? String(body.groupCode).trim() : null;
 
-    if (!name || !name.trim()) {
+    if (!name) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: "Name is required" }),
       };
     }
 
-    const client = new Client({ connectionString });
-    await client.connect();
-
-    // ⚠️ Asegúrate de tener una tabla "members" en Supabase
-    // con al menos: id (serial PK), name (text), group_code (text), created_at (timestamptz)
-    const result = await client.query(
+    const result = await pool.query(
       `
       INSERT INTO members (name, group_code, created_at)
       VALUES ($1, $2, NOW())
@@ -35,22 +29,18 @@ export const handler = async (event) => {
       DO UPDATE SET group_code = EXCLUDED.group_code
       RETURNING id, name, group_code, created_at;
       `,
-      [name.trim(), groupCode || null]
+      [name, groupCode || null]
     );
-
-    await client.end();
-
-    const member = result.rows[0];
 
     return {
       statusCode: 200,
-      body: JSON.stringify(member),
+      body: JSON.stringify(result.rows[0]),
     };
   } catch (err) {
-    console.error("Error in members-self-register:", err);
+    console.error("members-self-register error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
+      body: JSON.stringify({ error: "Internal server error", detail: err.message }),
     };
   }
 };

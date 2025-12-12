@@ -21,6 +21,15 @@ import { useGuidedToolForToday } from "../hooks/useGuidedToolForToday.js";
 import { getRandomToolPunchline } from "../utils/getToolPunchline.js";
 import GuidedToolModal from "../components/GuidedToolModal.jsx";
 
+const ICONS = {
+  Brain,
+  Sparkles,
+  HeartHandshake,
+  Moon,
+  AlertTriangle,
+  Coffee,
+};
+
 export default function ToolsPage() {
   const navigate = useNavigate();
 
@@ -31,6 +40,45 @@ export default function ToolsPage() {
   const [toolDone, setToolDone] = useState(false);
   const [toolDoneLine, setToolDoneLine] = useState("");
   const [isToolGuideOpen, setIsToolGuideOpen] = useState(false);
+
+  // ✅ Toolbox sections from DB (via Netlify function)
+  const [sections, setSections] = useState([]);
+  const [sectionsLoading, setSectionsLoading] = useState(true);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function load() {
+      try {
+        setSectionsLoading(true);
+        const res = await fetch("/.netlify/functions/get-toolbox-sections", {
+          method: "GET",
+        });
+
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(
+            `get-toolbox-sections failed: ${res.status} – ${txt || "no body"}`
+          );
+        }
+
+        const json = await res.json();
+        const list = Array.isArray(json.sections) ? json.sections : [];
+
+        if (!ignore) setSections(list);
+      } catch (e) {
+        console.error("ToolsPage: load toolbox sections error:", e);
+        if (!ignore) setSections([]);
+      } finally {
+        if (!ignore) setSectionsLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   // leer clean date local (Home ya se encarga de sincronizar con DB)
   useEffect(() => {
@@ -116,55 +164,6 @@ export default function ToolsPage() {
       return next;
     });
   }
-
-  // toolbox “estático” por ahora (luego podemos mapear a la DB)
-  const toolboxSections = [
-    {
-      id: "grounding",
-      title: "Grounding tools",
-      description: "For when your brain is too loud.",
-      icon: Brain,
-      badge: "Stay in your body",
-    },
-    {
-      id: "connection",
-      title: "Connection tools",
-      description: "You don’t have to trauma-dump. Just don’t disappear.",
-      icon: HeartHandshake,
-      badge: "Call, text, exist",
-    },
-    {
-      id: "craving",
-      title: "Craving breakers",
-      description:
-        "Tiny moves to survive the next 15 minutes without detonating.",
-      icon: AlertTriangle,
-      badge: "Emergency mode",
-    },
-    {
-      id: "energy",
-      title: "Low-energy days",
-      description:
-        "For the days when showering feels like step twelve and a half.",
-      icon: Coffee,
-      badge: "Bare-minimum wins",
-    },
-    {
-      id: "night",
-      title: "Night tools",
-      description:
-        "When the meeting is over but your brain is still oversharing.",
-      icon: Moon,
-      badge: "Survive the dark",
-    },
-    {
-      id: "spark",
-      title: "Hope sparks",
-      description: "Evidence that maybe you’re not completely doomed after all.",
-      icon: Sparkles,
-      badge: "For later",
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col pb-16">
@@ -304,9 +303,7 @@ export default function ToolsPage() {
                             <span className="text-[11px]">
                               {toolDone ? "✓" : "○"}
                             </span>
-                            <span>
-                              {toolDone ? "Done for today" : "I did this"}
-                            </span>
+                            <span>{toolDone ? "Done for today" : "I did this"}</span>
                           </span>
                         </motion.button>
                       </div>
@@ -351,40 +348,55 @@ export default function ToolsPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
-              {toolboxSections.map(
-                ({ id, title, description, icon: Icon, badge }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => navigate(`/tools/${id}`)}
-                    className="text-left rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 hover:border-cyan-400/60 hover:bg-slate-900 transition-colors"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 flex h-9 w-9 items-center justify-center rounded-full bg-slate-950/80 border border-slate-700">
-                        <Icon size={18} className="text-cyan-300" />
-                      </div>
+            {sectionsLoading ? (
+              <p className="text-[11px] text-slate-500 italic">
+                Loading toolbox…
+              </p>
+            ) : sections.length === 0 ? (
+              <p className="text-[11px] text-slate-500">
+                No toolbox sections yet.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {sections.map((row) => {
+                  const Icon = ICONS[row.icon] ?? Wrench;
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-medium text-slate-100 truncate">
-                            {title}
-                          </p>
-                          {badge && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 whitespace-nowrap">
-                              {badge}
-                            </span>
-                          )}
+                  return (
+                    <button
+                      key={row.id}
+                      type="button"
+                      onClick={() => navigate(`/tools/${row.slug}`)}
+                      className="text-left rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 hover:border-cyan-400/60 hover:bg-slate-900 transition-colors"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 flex h-9 w-9 items-center justify-center rounded-full bg-slate-950/80 border border-slate-700">
+                          <Icon size={18} className="text-cyan-300" />
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1">
-                          {description}
-                        </p>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium text-slate-100 truncate">
+                              {row.title}
+                            </p>
+                            {row.badge ? (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 whitespace-nowrap">
+                                {row.badge}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          {row.description ? (
+                            <p className="text-[11px] text-slate-400 mt-1">
+                              {row.description}
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                )
-              )}
-            </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </section>
         </div>
       </main>
