@@ -11,6 +11,7 @@ import {
   Coffee,
   ChevronUp,
   ChevronDown,
+  Wrench
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header3PM from "../components/Header3PM.jsx";
@@ -120,7 +121,7 @@ export default function ToolsPage() {
     {
       id: "grounding",
       title: "Grounding tools",
-      description: "For when your brain is doing parkour and you just wanted a nap.",
+      description: "For when your brain is too loud.",
       icon: Brain,
       badge: "Stay in your body",
     },
@@ -174,7 +175,7 @@ export default function ToolsPage() {
 
             <div className="relative flex items-start gap-3">
               <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/70 shadow-inner shadow-black/50">
-                <Hammer size={18} className="text-cyan-300 -rotate-12" />
+        <Wrench size={11} className="text-cyan-300" />
               </div>
 
               <div className="space-y-1">
