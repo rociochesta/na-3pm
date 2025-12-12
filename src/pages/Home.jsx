@@ -417,10 +417,9 @@ const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
 </section>
 {/* NEXT MEETING — premium block */}
 <section className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-4 shadow-lg shadow-black/30">
-  <div className="flex items-center justify-between">
-    
+  <div className="flex items-center justify-between gap-3">
     {/* Left side: text */}
-    <div>
+    <div className="min-w-0">
       <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
         Next meeting
       </p>
@@ -434,20 +433,21 @@ const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
       </p>
     </div>
 
-    {/* Right side: Join button */}
+    {/* Right side: pill-style button (match app style) */}
     <a
       href="https://zoom.us/whatever"
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg 
-        text-[11px] font-medium bg-cyan-500 text-slate-900 hover:bg-cyan-400 
-        transition-colors shadow-md shadow-cyan-500/20"
+      className="shrink-0 inline-flex items-center gap-1 rounded-full border border-cyan-400/80 
+                 bg-slate-950/70 px-3 py-1.5 text-[11px] font-medium text-cyan-100 
+                 hover:bg-cyan-400/10 hover:border-cyan-300 transition-colors"
     >
-      <Video size={14} className="text-slate-900" />
-      Join Zoom
+      <Video size={14} className="text-cyan-200" />
+      <span>Join Zoom</span>
     </a>
   </div>
 </section>
+
 
 
 

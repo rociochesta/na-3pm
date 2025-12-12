@@ -1,40 +1,44 @@
-// src/utils/getTimeUntilMeeting.js
-
 export function getTimeUntilMeeting() {
-  // reunión diaria a las 3PM Edmonton
-  const MEETING_HOUR = 15; // 3 PM
-  const MEETING_MINUTE = 0;
-
-  // 1) Fecha actual en la zona horaria del usuario
   const now = new Date();
 
-  // 2) Construir la fecha/hora de la reunión EN Edmonton
-  const edmontonNow = new Date(
-    now.toLocaleString("en-US", { timeZone: "America/Edmonton" })
+  // construir la hora de la reunión en zona Edmonton
+  const meetingInEdmonton = new Date(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Edmonton",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date())
   );
 
-  const edmontonMeeting = new Date(edmontonNow);
-  edmontonMeeting.setHours(MEETING_HOUR, MEETING_MINUTE, 0, 0);
+  // poner la hora a exactamente 15:00 Edmonton time
+  meetingInEdmonton.setHours(15, 0, 0, 0);
 
-  // 3) Si la reunión ya pasó hoy → usar mañana
-  if (edmontonNow > edmontonMeeting) {
-    edmontonMeeting.setDate(edmontonMeeting.getDate() + 1);
-  }
-
-  // 4) Convertir la reunión Edmonton → hora local del usuario
-  const meetingLocal = new Date(
-    edmontonMeeting.toLocaleString("en-US", {
+  // convertir esa hora Edmonton → timestamp real
+  const meetingLocalTimestamp = new Date(
+    meetingInEdmonton.toLocaleString("en-CA", {
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     })
   );
 
-  // 5) Diferencia final
-  const diffMs = meetingLocal - now;
-  const diffH = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffM = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  let diffMs = meetingLocalTimestamp - now;
 
-  if (diffH <= 0 && diffM <= 0) return "starting now";
-  if (diffH === 0) return `in ${diffM}m`;
+  // si ya pasó hoy → usar mañana
+  if (diffMs < 0) {
+    meetingInEdmonton.setDate(meetingInEdmonton.getDate() + 1);
+    const tomorrowLocal = new Date(
+      meetingInEdmonton.toLocaleString("en-CA", {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
+    );
+    diffMs = tomorrowLocal - now;
+  }
 
-  return `in ${diffH}h ${diffM}m`;
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+
+  return `in ${hours}h ${minutes}m`;
 }
