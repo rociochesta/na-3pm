@@ -1,116 +1,135 @@
 // src/pages/Me.jsx
 import React, { useEffect, useState } from "react";
-import Header3PM from "../components/Header3PM.jsx";
-import BottomNav from "../components/BottomNav.jsx";
-import { User, CalendarClock, Target, LogOut } from "lucide-react";
+import Header3PM from "../components/Header3PM";
+import { Link } from "react-router-dom";
+import { User, CalendarDays, UsersRound, LogOut } from "lucide-react";
 
-export default function MePage() {
-  const [profile, setProfile] = useState(null);
-  const [cleanDate, setCleanDate] = useState(null);
+export default function Me() {
+  const [userProfile, setUserProfile] = useState(null);
+  const [soberDate, setSoberDate] = useState(null);
 
   useEffect(() => {
     try {
-      const p = JSON.parse(localStorage.getItem("na_userProfile"));
-      setProfile(p || null);
+      const raw = localStorage.getItem("na_userProfile");
+      if (raw) setUserProfile(JSON.parse(raw));
+    } catch {}
 
+    try {
       const sd = localStorage.getItem("na_soberDate");
-      setCleanDate(sd || null);
-    } catch {
-      // ignore
-    }
+      if (sd) setSoberDate(sd);
+    } catch {}
   }, []);
 
-  const initial =
-    profile?.display_name?.trim()?.charAt(0)?.toUpperCase() || "U";
+  function handleLogout() {
+    localStorage.removeItem("na_userProfile");
+    localStorage.removeItem("na_memberId");
+    window.location.href = "/login";
+  }
+
+  const cleanDateLabel =
+    soberDate &&
+    (() => {
+      const [y, m, d] = soberDate.split("-");
+      const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      return `${monthNames[m - 1]} ${Number(d)}, ${y}`;
+    })();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col pb-20">
+    <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col">
       <Header3PM />
 
       <main className="flex-1">
-        <div className="max-w-md mx-auto px-4 py-8 space-y-8">
-          {/* Avatar + name card */}
-          <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 px-5 py-6 shadow-xl shadow-black/30">
-            <div className="pointer-events-none absolute -left-8 -top-10 h-28 w-28 rounded-full bg-cyan-500/20 blur-2xl" />
-            <div className="pointer-events-none absolute -right-6 bottom-0 h-24 w-24 rounded-full bg-sky-400/15 blur-2xl" />
+        <div className="max-w-md mx-auto px-4 py-6 space-y-8">
 
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-slate-950 border border-cyan-400/60 flex items-center justify-center text-cyan-300 text-lg font-semibold">
-                {initial}
+          {/* USER SECTION */}
+          <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-lg shadow-black/30">
+            <div className="absolute -top-10 -right-10 h-24 w-24 bg-cyan-500/10 blur-3xl rounded-full" />
+
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-slate-900/90 border border-slate-700">
+                <User size={22} className="text-cyan-300" />
               </div>
 
-              <div className="flex flex-col">
-                <span className="text-xs uppercase tracking-[0.16em] text-slate-400">
-                  Your profile
-                </span>
-                <span className="text-base font-medium text-slate-100">
-                  {profile?.display_name || "Unnamed addict"}
-                </span>
+              <div>
+                <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
+                  This is you. Allegedly.
+                </p>
+                <p className="text-lg font-semibold text-slate-200 mt-1">
+                  {userProfile?.name || "Unnamed addict"}
+                </p>
               </div>
             </div>
           </section>
 
-          {/* Clean date info */}
-          <section className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-4 shadow-md shadow-black/20 space-y-2">
-            <div className="flex items-center gap-2 text-slate-300">
-              <CalendarClock size={16} className="text-cyan-300" />
-              <span className="text-sm font-medium">Clean date</span>
+          {/* CLEAN DATE */}
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/80 px-5 py-4 shadow-lg shadow-black/20 space-y-2">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-slate-500">
+              <CalendarDays size={14} className="text-cyan-300" />
+              <span>Clean date</span>
             </div>
 
-            {cleanDate ? (
-              <p className="text-sm text-slate-400 pl-6">
-                {cleanDate}
+            {cleanDateLabel ? (
+              <p className="text-sm text-slate-300">
+                You've been clean since{" "}
+                <span className="text-cyan-300 font-medium">{cleanDateLabel}</span>.  
+                Flex on your old habits a little.
               </p>
             ) : (
-              <p className="text-sm text-slate-500 pl-6">
-                You haven’t set a clean date yet.
+              <p className="text-sm text-slate-400">
+                No clean date set. Bold choice.
               </p>
             )}
 
-            <a
-              href="/sober-date"
-              className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-cyan-300 underline underline-offset-4 pl-6"
+            <Link
+              to="/sober-date"
+              className="inline-flex text-[11px] text-cyan-300 underline underline-offset-4 hover:text-cyan-200"
             >
-              Change clean date
-            </a>
+              Edit clean date
+            </Link>
           </section>
 
-          {/* Group link */}
-          <section className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-4 shadow-md shadow-black/20 space-y-2">
-            <div className="flex items-center gap-2 text-slate-300">
-              <Target size={16} className="text-cyan-300" />
-              <span className="text-sm font-medium">Your homegroup</span>
+          {/* GROUP */}
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/80 px-5 py-4 shadow-lg shadow-black/20 space-y-2">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-slate-500">
+              <UsersRound size={14} className="text-cyan-300" />
+              <span>Your group</span>
             </div>
 
-            <p className="text-sm text-slate-400 pl-6">3PM Homegroup</p>
+            <p className="text-sm text-slate-300">
+              3PM Homegroup. The place where we pretend to have it together.
+            </p>
 
-            <a
-              href="/group"
-              className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-cyan-300 underline underline-offset-4 pl-6"
+            <Link
+              to="/group"
+              className="text-[11px] text-cyan-300 underline underline-offset-4 hover:text-cyan-200"
             >
               Visit group page
-            </a>
+            </Link>
           </section>
 
-          {/* Log out */}
-          <section className="pt-2">
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.removeItem("na_userProfile");
-                localStorage.removeItem("na_memberId");
-                window.location.href = "/login";
-              }}
-              className="flex items-center gap-2 text-sm text-red-300 hover:text-red-200 transition-colors"
-            >
-              <LogOut size={16} />
-              <span>Log out</span>
-            </button>
-          </section>
+          {/* LOGOUT */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-slate-800 bg-slate-900/80 text-[12px] text-slate-300 hover:text-cyan-300 hover:border-cyan-400 transition-colors"
+          >
+            <LogOut size={14} />
+            Log out (go touch grass or something)
+          </button>
         </div>
       </main>
-
-      <BottomNav />
     </div>
   );
 }
