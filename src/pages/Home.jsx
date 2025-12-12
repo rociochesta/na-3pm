@@ -47,8 +47,9 @@ const ICONS = {
 };
 import BottomNav from "../components/BottomNav";
 import { AnimatePresence } from "framer-motion";
+import { getTimeUntilMeeting } from "../utils/getTimeUntilMeeting.js";
 
-
+import { Video } from "lucide-react";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -92,6 +93,7 @@ export default function Home() {
   // 🔹 mensajes de bienvenida rotativos desde Supabase
   const [welcomeHeadline, setWelcomeHeadline] = useState("Welcome back.");
   const [welcomeSubline, setWelcomeSubline] = useState("");
+const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
 
   // ─────────────────────────────────────────────
   // Cargar welcome message desde Netlify function
@@ -243,6 +245,17 @@ export default function Home() {
       cancelled = true;
     };
   }, [reachedMilestones]);
+  useEffect(() => {
+  function update() {
+    setTimeUntilMeeting(getTimeUntilMeeting());
+  }
+
+  update(); // primera carga
+  const id = setInterval(update, 30 * 1000); // actualizar cada 30s
+
+  return () => clearInterval(id);
+}, []);
+
 
   // Fecha bonita “Since Nov 23, 2025”
   const cleanDateLabel =
@@ -402,6 +415,40 @@ export default function Home() {
     )}
   </div>
 </section>
+{/* NEXT MEETING — premium block */}
+<section className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-4 shadow-lg shadow-black/30">
+  <div className="flex items-center justify-between">
+    
+    {/* Left side: text */}
+    <div>
+      <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
+        Next meeting
+      </p>
+
+      <p className="text-sm font-medium text-slate-200 mt-1">
+        {timeUntilMeeting}
+      </p>
+
+      <p className="text-[11px] text-slate-400 mt-0.5">
+        3PM Homegroup • Daily
+      </p>
+    </div>
+
+    {/* Right side: Join button */}
+    <a
+      href="https://zoom.us/whatever"
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg 
+        text-[11px] font-medium bg-cyan-500 text-slate-900 hover:bg-cyan-400 
+        transition-colors shadow-md shadow-cyan-500/20"
+    >
+      <Video size={14} className="text-slate-900" />
+      Join Zoom
+    </a>
+  </div>
+</section>
+
 
 
 {/* Badge + status — ahora más premium */}
