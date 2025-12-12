@@ -1,6 +1,6 @@
 // src/pages/Tools.jsx
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Hammer,
   Sparkles,
@@ -11,7 +11,7 @@ import {
   Coffee,
   ChevronUp,
   ChevronDown,
-  Wrench
+  Wrench,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header3PM from "../components/Header3PM.jsx";
@@ -22,6 +22,8 @@ import { getRandomToolPunchline } from "../utils/getToolPunchline.js";
 import GuidedToolModal from "../components/GuidedToolModal.jsx";
 
 export default function ToolsPage() {
+  const navigate = useNavigate();
+
   const [soberDate, setSoberDate] = useState(null);
   const [daysClean, setDaysClean] = useState(null);
 
@@ -69,12 +71,11 @@ export default function ToolsPage() {
 
   const todaysToolTitle =
     todaysTool?.title ||
-    (toolLoading
-      ? "Loading today’s tool…"
-      : "No tool assigned for today yet.");
+    (toolLoading ? "Loading today’s tool…" : "No tool assigned for today yet.");
 
   const todaysToolTagline =
-    todaysTool?.tagline || "One tiny action for when white-knuckling isn’t working.";
+    todaysTool?.tagline ||
+    "One tiny action for when white-knuckling isn’t working.";
 
   function handleToggleToolDone() {
     const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -135,21 +136,24 @@ export default function ToolsPage() {
     {
       id: "craving",
       title: "Craving breakers",
-      description: "Tiny moves to survive the next 15 minutes without detonating.",
+      description:
+        "Tiny moves to survive the next 15 minutes without detonating.",
       icon: AlertTriangle,
       badge: "Emergency mode",
     },
     {
       id: "energy",
       title: "Low-energy days",
-      description: "For the days when showering feels like step twelve and a half.",
+      description:
+        "For the days when showering feels like step twelve and a half.",
       icon: Coffee,
       badge: "Bare-minimum wins",
     },
     {
       id: "night",
       title: "Night tools",
-      description: "When the meeting is over but your brain is still oversharing.",
+      description:
+        "When the meeting is over but your brain is still oversharing.",
       icon: Moon,
       badge: "Survive the dark",
     },
@@ -175,7 +179,7 @@ export default function ToolsPage() {
 
             <div className="relative flex items-start gap-3">
               <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/70 shadow-inner shadow-black/50">
-        <Wrench size={11} className="text-cyan-300" />
+                <Wrench size={11} className="text-cyan-300" />
               </div>
 
               <div className="space-y-1">
@@ -269,7 +273,11 @@ export default function ToolsPage() {
                           onClick={handleToggleToolDone}
                           whileTap={{ scale: 0.94 }}
                           animate={toolDone ? { scale: 1.03 } : { scale: 1 }}
-                          transition={{ type: "spring", stiffness: 260, damping: 18 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 260,
+                            damping: 18,
+                          }}
                           className="relative inline-flex items-center"
                         >
                           {/* glow que aparece solo cuando está done */}
@@ -296,7 +304,9 @@ export default function ToolsPage() {
                             <span className="text-[11px]">
                               {toolDone ? "✓" : "○"}
                             </span>
-                            <span>{toolDone ? "Done for today" : "I did this"}</span>
+                            <span>
+                              {toolDone ? "Done for today" : "I did this"}
+                            </span>
                           </span>
                         </motion.button>
                       </div>
@@ -347,10 +357,7 @@ export default function ToolsPage() {
                   <button
                     key={id}
                     type="button"
-                    // más adelante esto podría hacer navigate(`/tools/${id}`)
-                    onClick={() => {
-                      console.log("TODO: open toolbox section", id);
-                    }}
+                    onClick={() => navigate(`/tools/${id}`)}
                     className="text-left rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 hover:border-cyan-400/60 hover:bg-slate-900 transition-colors"
                   >
                     <div className="flex items-start gap-3">

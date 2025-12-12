@@ -1,6 +1,7 @@
 // src/App.jsx
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import Home from "./pages/Home.jsx";
 import SoberDate from "./pages/SoberDate.jsx";
 import AddGratitude from "./pages/AddGratitude.jsx";
@@ -13,8 +14,9 @@ import BossAccess from "./pages/BossAccess.jsx";
 import Login from "./pages/Login.jsx";
 import Debug from "./pages/Debug.jsx";
 
-// 👇 nuevas páginas
+// 👇 tools / bottom nav pages
 import ToolsPage from "./pages/Tools.jsx";
+import ToolSectionPage from "./pages/ToolSectionPage.jsx";
 import GroupPage from "./pages/Group.jsx";
 import MePage from "./pages/Me.jsx";
 
@@ -105,7 +107,7 @@ export default function App() {
           }
         />
 
-        {/* 👇 nuevas rutas del bottom nav */}
+        {/* 👇 TOOLS */}
         <Route
           path="/tools"
           element={
@@ -115,6 +117,16 @@ export default function App() {
           }
         />
 
+        <Route
+          path="/tools/:sectionId"
+          element={
+            <RequireProfile>
+              <ToolSectionPage />
+            </RequireProfile>
+          }
+        />
+
+        {/* 👇 bottom nav */}
         <Route
           path="/group"
           element={
