@@ -1,25 +1,43 @@
 // src/utils/getTimeUntilMeeting.js
-
 export function getTimeUntilMeeting() {
   const now = new Date();
 
-  // Hora actual "vista" desde Edmonton
-  const edmontonNow = new Date(
-    now.toLocaleString("en-CA", { timeZone: "America/Edmonton" })
+  // formatter para obtener componentes en zona Edmonton
+  const edmontonFmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Edmonton",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  // separar componentes
+  const parts = edmontonFmt.formatToParts(now);
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+
+  const year = Number(get("year"));
+  const month = Number(get("month"));
+  const day = Number(get("day"));
+  const hour = Number(get("hour"));
+  const minute = Number(get("minute"));
+
+  // construir fecha EXACTA en Edmonton
+  const edmontonNow = new Date(Date.UTC(year, month - 1, day, hour, minute));
+
+  // construir la reunión (3pm Edmonton)
+  const edmontonMeeting = new Date(
+    Date.UTC(year, month - 1, day, 15, 0, 0, 0)
   );
 
-  // Próxima reunión: 15:00 (3PM) en Edmonton, hoy
-  const edmontonMeeting = new Date(edmontonNow);
-  edmontonMeeting.setHours(15, 0, 0, 0);
-
-  // Si ya pasó la reunión de hoy, usamos mañana
+  // si ya pasó hoy → usar mañana
   if (edmontonNow > edmontonMeeting) {
-    edmontonMeeting.setDate(edmontonMeeting.getDate() + 1);
+    edmontonMeeting.setUTCDate(edmontonMeeting.getUTCDate() + 1);
   }
 
-  // Diferencia en ms (en "tiempo Edmonton": es la misma para todo el mundo)
+  // diferencia
   const diffMs = edmontonMeeting - edmontonNow;
-
   if (diffMs <= 0) return "starting now";
 
   const totalMinutes = Math.round(diffMs / (1000 * 60));
