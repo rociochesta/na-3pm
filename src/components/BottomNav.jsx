@@ -1,13 +1,34 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Wrench, BookOpen, User } from "lucide-react";
+import { Home, Hammer, Wrench, UsersRound, User } from "lucide-react";
 
 export default function BottomNav() {
   const navItems = [
-    { to: "/", label: "Home", icon: Home },
-    { to: "/tools", label: "Tools", icon: Wrench },
-    { to: "/readings", label: "Readings", icon: BookOpen },
-    { to: "/me", label: "Me", icon: User },
+    {
+      to: "/",
+      label: "Home",
+      icon: Home,
+    },
+    {
+      to: "/tools",
+      label: "Tools",
+      icon: () => (
+        <span className="relative flex">
+          <Hammer size={18} className="absolute left-0 top-0 text-current" />
+          <Wrench size={18} className="absolute left-2 top-0 text-current" />
+        </span>
+      ), // overlay de Hammer + Wrench para "toolbox vibe"
+    },
+    {
+      to: "/group",
+      label: "Group",
+      icon: UsersRound,
+    },
+    {
+      to: "/me",
+      label: "Me",
+      icon: User,
+    },
   ];
 
   return (
@@ -24,7 +45,8 @@ export default function BottomNav() {
               }`
             }
           >
-            <Icon size={18} />
+            {/* Icon can be component OR function */}
+            {typeof Icon === "function" ? <Icon /> : <Icon size={18} />}
             <span className="text-[10px] font-medium tracking-wide">{label}</span>
           </NavLink>
         ))}
