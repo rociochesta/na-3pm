@@ -99,7 +99,7 @@ export default function Home() {
   useEffect(() => {
     const loadWelcome = async () => {
       try {
-        const res = await fetch("/.netlify/functions/get-welcome-message");
+        const res = await fetch("/.netlify/functions/get-welcome");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
@@ -405,6 +405,7 @@ export default function Home() {
 
 
 {/* Badge + status — ahora más premium */}
+{/* Badge + status — ahora más premium */}
 <section>
   {hasSoberDate ? (
     <div className="relative">
@@ -440,6 +441,19 @@ export default function Home() {
           </div>
         </div>
 
+        {/* pill con days to next milestone (usando el mismo nextMilestone) */}
+        {nextMilestone && (
+          <div className="flex justify-end mt-3">
+            <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-0.5 text-[10px] text-slate-400">
+              Next milestone: {nextMilestone.label}
+              <span className="ml-1 text-slate-500">
+                ({nextMilestone.days - daysClean} day
+                {nextMilestone.days - daysClean === 1 ? "" : "s"} left)
+              </span>
+            </span>
+          </div>
+        )}
+
         <Link
           to="/sober-date"
           className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-cyan-300 underline underline-offset-2 mt-3"
@@ -465,9 +479,11 @@ export default function Home() {
   )}
 </section>
 
+
 {/* TODAY'S TOOL — versión premium con micro-animación */}
 <section>
-  <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/85 px-4 py-4 shadow-lg shadow-black/40">
+<div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-950 to-slate-900 px-4 py-4 shadow-lg shadow-black/40">
+
     {/* glows suaves */}
     <div className="pointer-events-none absolute -right-10 -top-14 h-24 w-24 rounded-full bg-cyan-500/20 blur-3xl" />
     <div className="pointer-events-none absolute -left-10 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-2xl" />
@@ -598,33 +614,44 @@ export default function Home() {
         
 
         {/* JFT – Premium teaser (sin CTA) */}
+{/* JFT – Premium teaser con fecha + link suave */}
 <section className="pt-2">
   <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 to-slate-900 px-4 py-4 shadow-lg shadow-black/30">
 
-    {/* Glow decorativo */}
+    {/* Glows decorativos */}
     <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-cyan-500/20 blur-2xl" />
     <div className="pointer-events-none absolute -left-8 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-xl" />
 
-    {/* Header */}
-    <div className="flex items-center gap-2 mb-1">
-      <BookOpen size={14} className="text-cyan-300" />
-      <span className="text-xs uppercase tracking-[0.16em] text-slate-500">
-        Just for Today
-      </span>
+    {/* Header con fecha */}
+    <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center gap-2">
+        <BookOpen size={14} className="text-cyan-300" />
+        <span className="text-xs uppercase tracking-[0.16em] text-slate-500">
+          Just for Today
+        </span>
+      </div>
+
+      {/* pill de fecha solo si hay entrada */}
+      {!jftLoading && !jftError && jftEntry && (
+        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700 text-slate-400">
+          {String(jftEntry.month).padStart(2, "0")}/
+          {String(jftEntry.day).padStart(2, "0")}
+        </span>
+      )}
     </div>
 
-    {/* Loading / error states */}
+    {/* Estados de carga / error */}
     {jftLoading && (
       <p className="text-[11px] text-slate-500 italic">Loading…</p>
     )}
 
     {jftError && (
       <p className="text-[11px] text-rose-300">
-        Couldn’t load today’s meditation.
+        Couldn&apos;t load today&apos;s meditation.
       </p>
     )}
 
-    {/* Content teaser */}
+    {/* Contenido cuando sí hay entrada */}
     {!jftLoading && !jftError && jftEntry && (
       <>
         {/* Título del día */}
@@ -643,15 +670,26 @@ export default function Home() {
               }”
             </p>
           )}
+
+        {/* CTA muy discreto */}
+        <div className="pt-2 flex justify-end">
+          <Link
+            to="/jft" // cámbialo a "/readings" cuando tengas esa página
+            className="text-[10px] text-slate-400 hover:text-cyan-300 underline underline-offset-4"
+          >
+            Read more
+          </Link>
+        </div>
       </>
     )}
 
-    {/* No entry */}
+    {/* Sin entrada */}
     {!jftLoading && !jftError && !jftEntry && (
       <p className="text-[11px] text-slate-500">No entry for today.</p>
     )}
   </div>
 </section>
+
 
 
           {/* BLOQUES INFERIORES */}
