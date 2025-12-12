@@ -13,6 +13,11 @@ import BossAccess from "./pages/BossAccess.jsx";
 import Login from "./pages/Login.jsx";
 import Debug from "./pages/Debug.jsx";
 
+// 👇 nuevas páginas
+import ToolsPage from "./pages/Tools.jsx";
+import GroupPage from "./pages/Group.jsx";
+import MePage from "./pages/Me.jsx";
+
 /**
  * Redirects to /login if the user doesn't have a local profile.
  */
@@ -96,6 +101,34 @@ export default function App() {
           element={
             <RequireProfile>
               <JFT />
+            </RequireProfile>
+          }
+        />
+
+        {/* 👇 nuevas rutas del bottom nav */}
+        <Route
+          path="/tools"
+          element={
+            <RequireProfile>
+              <ToolsPage />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/group"
+          element={
+            <RequireProfile>
+              <GroupPage />
+            </RequireProfile>
+          }
+        />
+
+        <Route
+          path="/me"
+          element={
+            <RequireProfile>
+              <MePage />
             </RequireProfile>
           }
         />
