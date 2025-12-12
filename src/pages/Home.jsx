@@ -1,6 +1,6 @@
 // src/pages/Home.jsx
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ChessQueen,
   ChessKing,
@@ -16,8 +16,8 @@ import {
   Users, // Group milestones
   Wrench, // Today’s tool
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import HeaderGeneric from "../components/HeaderGeneric.jsx";
+import Header3PM from "../components/Header3PM.jsx";
 import NeonBadge from "../components/NeonBadge.jsx";
 import { motion } from "framer-motion";
 import { useTodayJFT } from "../hooks/useTodayJFT.js";
@@ -35,7 +35,6 @@ import {
   getGroupUpcomingMilestones,
   getGroupAllNextMilestones,
 } from "../utils/getGroupUpcomingMilestones.js";
-import Header3PM from "../components/Header3PM.jsx";
 import { getRandomToolPunchline } from "../utils/getToolPunchline.js";
 import MilestoneIcon from "../components/MilestoneIcon.jsx";
 import { useGuidedToolForToday } from "../hooks/useGuidedToolForToday.js";
@@ -48,11 +47,15 @@ const ICONS = {
 };
 
 export default function Home() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const [soberDate, setSoberDate] = useState(null);
   const [daysClean, setDaysClean] = useState(null);
+
+  // punchline antiguo, lo dejamos por si lo usamos en otros lugares más adelante
   const [punchline] = useState(() => getPunchline());
   const [cleanPhrase] = useState(() => getCleanTimePhrase());
+
   const { entry: jftEntry, loading: jftLoading, error: jftError } =
     useTodayJFT();
 
@@ -65,7 +68,6 @@ export default function Home() {
   const [isJftOpen, setIsJftOpen] = useState(false);
   const [isToolGuideOpen, setIsToolGuideOpen] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
-
 
   const [groupMembers, setGroupMembers] = useState([]);
 
@@ -80,12 +82,47 @@ export default function Home() {
   const [toolDone, setToolDone] = useState(false);
   const [toolDoneLine, setToolDoneLine] = useState(null);
 
-  // 🔹 punchline del ÚLTIMO milestone alcanzado (async vía JSON)
+  // punchline del ÚLTIMO milestone alcanzado (async vía JSON)
   const [lastPunch, setLastPunch] = useState(null);
+
+  // 🔹 mensajes de bienvenida rotativos desde Supabase
+  const [welcomeHeadline, setWelcomeHeadline] = useState("Welcome back.");
+  const [welcomeSubline, setWelcomeSubline] = useState("");
+
+  // ─────────────────────────────────────────────
+  // Cargar welcome message desde Netlify function
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    const loadWelcome = async () => {
+      try {
+        const res = await fetch("/.netlify/functions/get-welcome-message");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        setWelcomeHeadline(
+          data?.headline || "Welcome back. Again. That’s how recovery works."
+        );
+        setWelcomeSubline(
+          data?.subline ||
+            "The server is hungover, but you still logged in. Bold move."
+        );
+      } catch (err) {
+        console.error("Failed to load welcome message:", err);
+        setWelcomeHeadline(
+          "Welcome back. If you relapsed, you still get to be here."
+        );
+        setWelcomeSubline(
+          "We don’t grade your days. We just keep you company in them."
+        );
+      }
+    };
+
+    loadWelcome();
+  }, []);
 
   useEffect(() => {
     (async () => {
-      // ── 1) Clean date from localStorage
+      // 1) Clean date from localStorage
       let storedSoberDate = null;
       try {
         const stored = window.localStorage.getItem("na_soberDate");
@@ -98,7 +135,7 @@ export default function Home() {
         // ignore
       }
 
-      // ── 2) User profile (local)
+      // 2) User profile (local)
       try {
         const rawProfile = window.localStorage.getItem("na_userProfile");
         if (rawProfile) {
@@ -108,7 +145,7 @@ export default function Home() {
         console.error("User profile load error:", err);
       }
 
-      // ── 3) Try to read sober_date from DB (if we have memberId)
+      // 3) Try to read sober_date from DB (if we have memberId)
       try {
         const memberId = window.localStorage.getItem("na_memberId");
 
@@ -140,20 +177,20 @@ export default function Home() {
         console.warn("Error fetching sober date from DB:", err);
       }
 
-      // ── 4) Group members (JSON público)
+      // 4) Group members (JSON público)
       loadGroupMembers()
         .then((data) => setGroupMembers(data))
         .catch((err) => console.error("Group members load error:", err));
 
-      // ── 5) My Why
+      // 5) My Why
       const w = window.localStorage.getItem("na_myWhy");
       if (w) setSavedWhy(w);
 
-      // ── 6) Gratitudes
+      // 6) Gratitudes
       const stats = getGratitudeStats();
       if (stats) setGratitudeStats(stats);
 
-      // ── 7) Today’s tool done?
+      // 7) Today’s tool done?
       const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
       const doneKey = `na_toolDone_${todayKey}`;
       const punchKey = `na_toolDoneLine_${todayKey}`;
@@ -166,12 +203,9 @@ export default function Home() {
     })();
   }, []);
 
-
   const hasSoberDate = Boolean(soberDate) && daysClean !== null;
 
-  // ─────────────────────────────────────────────
   // TODAY'S TOOL – usando hook + JSON
-  // ─────────────────────────────────────────────
   const {
     tool: todaysTool,
     index: todaysToolIndex,
@@ -187,7 +221,7 @@ export default function Home() {
   const { reached: reachedMilestones, next: nextMilestone } =
     getMilestonesStatus(daysClean);
 
-  // 🔹 cargar punchline async cuando cambien los milestones alcanzados
+  // cargar punchline async cuando cambien los milestones alcanzados
   useEffect(() => {
     if (!reachedMilestones || reachedMilestones.length === 0) {
       setLastPunch(null);
@@ -234,127 +268,139 @@ export default function Home() {
   const allNextMilestones = getGroupAllNextMilestones(groupMembers);
 
   const lastGratitude = gratitudeStats.lastText;
- 
-useEffect(() => {
-  const profileRaw = window.localStorage.getItem("na_userProfile");
-  const memberId = window.localStorage.getItem("na_memberId");
 
-  console.log("Guard check → profile:", profileRaw, "memberId:", memberId);
+  // guard / auto-register member
+  useEffect(() => {
+    const profileRaw = window.localStorage.getItem("na_userProfile");
+    const memberId = window.localStorage.getItem("na_memberId");
 
-  // Si no hay nada de nada → mandar a login
-  if (!profileRaw && !memberId) {
-    navigate("/login", { replace: true });
-    return;
-  }
+    console.log("Guard check → profile:", profileRaw, "memberId:", memberId);
 
-  // Si HAY perfil pero NO memberId → intentar crearlo en la BD
-  if (profileRaw && !memberId) {
-    const profile = JSON.parse(profileRaw);
-
-    (async () => {
-      try {
-        const res = await fetch("/.netlify/functions/register-member", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: profile.name,
-            groupId: 1, // 3PM
-          }),
-        });
-
-        const text = await res.text();
-        if (!res.ok) {
-          console.warn("Auto-register member failed:", res.status, text);
-          return;
-        }
-
-        let data = null;
-        try {
-          data = JSON.parse(text);
-        } catch {
-          data = null;
-        }
-
-        if (data && data.id) {
-          window.localStorage.setItem("na_memberId", String(data.id));
-          console.log("Auto-saved na_memberId:", data.id);
-        } else {
-          console.warn("register-member (auto) sin id en respuesta:", text);
-        }
-      } catch (err) {
-        console.warn("Error calling register-member (auto):", err);
-      }
-    })();
-  }
-}, [navigate]);
-
-
- function handleToggleToolDone() {
-  const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const doneKey = `na_toolDone_${todayKey}`;
-  const punchKey = `na_toolDoneLine_${todayKey}`;
-
-  setToolDone((prev) => {
-    const next = !prev;
-
-    try {
-      if (next) {
-        window.localStorage.setItem(doneKey, "1");
-
-        // 🔹 1) Intentar sacar punchline desde la tool de hoy (DB)
-        let line = "";
-        if (
-          todaysTool &&
-          Array.isArray(todaysTool.punchlines) &&
-          todaysTool.punchlines.length > 0
-        ) {
-          const i = Math.floor(Math.random() * todaysTool.punchlines.length);
-          line = todaysTool.punchlines[i];
-        } else {
-          // 🔹 2) Fallback: lista vieja de punchlines genéricos
-          line = getRandomToolPunchline();
-        }
-
-        setToolDoneLine(line);
-        window.localStorage.setItem(punchKey, line);
-      } else {
-        window.localStorage.removeItem(doneKey);
-        window.localStorage.removeItem(punchKey);
-        setToolDoneLine("");
-      }
-    } catch {
-      // ignore
+    // Si no hay nada de nada → mandar a login
+    if (!profileRaw && !memberId) {
+      navigate("/login", { replace: true });
+      return;
     }
 
-    return next;
-  });
-}
-const hasGroup = Boolean(userProfile?.groupCode);
+    // Si HAY perfil pero NO memberId → intentar crearlo en la BD
+    if (profileRaw && !memberId) {
+      const profile = JSON.parse(profileRaw);
+
+      (async () => {
+        try {
+          const res = await fetch("/.netlify/functions/register-member", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: profile.name,
+              groupId: 1, // 3PM
+            }),
+          });
+
+          const text = await res.text();
+          if (!res.ok) {
+            console.warn("Auto-register member failed:", res.status, text);
+            return;
+          }
+
+          let data = null;
+          try {
+            data = JSON.parse(text);
+          } catch {
+            data = null;
+          }
+
+          if (data && data.id) {
+            window.localStorage.setItem("na_memberId", String(data.id));
+            console.log("Auto-saved na_memberId:", data.id);
+          } else {
+            console.warn("register-member (auto) sin id en respuesta:", text);
+          }
+        } catch (err) {
+          console.warn("Error calling register-member (auto):", err);
+        }
+      })();
+    }
+  }, [navigate]);
+
+  function handleToggleToolDone() {
+    const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const doneKey = `na_toolDone_${todayKey}`;
+    const punchKey = `na_toolDoneLine_${todayKey}`;
+
+    setToolDone((prev) => {
+      const next = !prev;
+
+      try {
+        if (next) {
+          window.localStorage.setItem(doneKey, "1");
+
+          // 1) Intentar sacar punchline desde la tool de hoy (DB)
+          let line = "";
+          if (
+            todaysTool &&
+            Array.isArray(todaysTool.punchlines) &&
+            todaysTool.punchlines.length > 0
+          ) {
+            const i = Math.floor(Math.random() * todaysTool.punchlines.length);
+            line = todaysTool.punchlines[i];
+          } else {
+            // 2) Fallback: lista vieja de punchlines genéricos
+            line = getRandomToolPunchline();
+          }
+
+          setToolDoneLine(line);
+          window.localStorage.setItem(punchKey, line);
+        } else {
+          window.localStorage.removeItem(doneKey);
+          window.localStorage.removeItem(punchKey);
+          setToolDoneLine("");
+        }
+      } catch {
+        // ignore
+      }
+
+      return next;
+    });
+  }
+
+  const hasGroup = Boolean(userProfile?.groupCode);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col">
-      {/* Top bar */}
-
-   <Header3PM />
-
-
+      <Header3PM />
 
       {/* Main content */}
       <main className="flex-1">
         <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-          {/* Hero text */}
-<section className="space-y-2">
-  <h2 className="text-2xl font-semibold tracking-tight">
-    YOU&apos;RE STILL CLEAN TODAY.
-  </h2>
-  <p className="text-sm text-slate-300">{punchline}</p>
+          {/* Hero premium con welcome rotativo */}
+          <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-cyan-950/80 via-slate-950 to-slate-900 px-4 py-5 shadow-xl shadow-black/40">
+            <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-cyan-500/25 blur-3xl" />
+            <div className="pointer-events-none absolute -left-8 bottom-0 h-24 w-24 rounded-full bg-sky-400/15 blur-2xl" />
 
-  {userProfile?.name && (
-    <p className="text-[11px] text-slate-400">
-      Hi {userProfile.name}. This is your 3PM dashboard.
-    </p>
-  )}
-</section>
+            <div className="relative flex items-start gap-3">
+              <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/70 shadow-inner shadow-black/50">
+                <Sparkles size={22} className="text-cyan-300" />
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold tracking-tight">
+                  {welcomeHeadline}
+                </h2>
+
+                <p className="text-sm text-slate-200">
+                  {welcomeSubline}
+                </p>
+
+                {userProfile?.name && (
+                  <p className="text-[11px] text-slate-400">
+                    Hi {userProfile.name}. This is your 3PM dashboard. However
+                    yesterday went, you still made it here.
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
 
           {/* Badge + status */}
           <section>
@@ -378,11 +424,12 @@ const hasGroup = Boolean(userProfile?.groupCode);
                         Days clean
                       </span>
                       <span className="text-[11px] text-slate-400 mt-1">
-                        You&apos;re still clean today.
+                        This is how long you&apos;ve been annoying your
+                        addiction on purpose.
                       </span>
                       {cleanDateLabel && (
                         <span className="text-[10px] text-slate-500 mt-1">
-                          Since {cleanDateLabel}
+                          Since {cleanDateLabel}. Your old dealer is bored.
                         </span>
                       )}
                     </div>
@@ -397,14 +444,15 @@ const hasGroup = Boolean(userProfile?.groupCode);
                 </div>
               </div>
             ) : (
-              <div className="bg-slate-900 border border-dashed border-slate-700 rounded-2xl px-5 py-4">
+              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/80 px-5 py-4 space-y-2">
                 <p className="text-sm text-slate-200">
-                  Set your clean date to start tracking your time.
+                  Set your clean date so we can start counting the days you
+                  didn&apos;t self-destruct on purpose.
                 </p>
 
                 <Link
                   to="/sober-date"
-                  className="inline-flex mt-3 text-xs font-medium text-cyan-300 hover:text-cyan-200 underline underline-offset-4"
+                  className="inline-flex mt-2 text-xs font-medium text-cyan-300 hover:text-cyan-200 underline underline-offset-4"
                 >
                   Set clean date
                 </Link>
@@ -413,113 +461,111 @@ const hasGroup = Boolean(userProfile?.groupCode);
           </section>
 
           {/* TODAY'S TOOL (card estándar) */}
-        <section>
-  <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 space-y-2">
-    <button
-      type="button"
-      onClick={() => setIsToolOpen((p) => !p)}
-      className="w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-500"
-    >
-      <div className="flex items-center gap-2">
-        <Wrench size={13} className="text-cyan-400" />
-        <span>Today&apos;s tool</span>
-      </div>
-
-      {isToolOpen ? (
-        <ChevronUp size={14} className="text-slate-400" />
-      ) : (
-        <ChevronDown size={14} className="text-slate-400" />
-      )}
-    </button>
-
-    {isToolOpen && (
-      <motion.div
-        key="tool-content"
-        initial={{ opacity: 0, y: -4 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -4 }}
-        transition={{ duration: 0.18 }}
-        className="space-y-2 pt-1"
-      >
-        <p className="text-[11px] text-slate-400">
-          One tiny action for messy days.
-        </p>
-
-        {/* estados del hook: loading / error / ok */}
-        {toolLoading ? (
-          <p className="text-[11px] text-slate-500 italic">
-            Loading today&apos;s tool...
-          </p>
-        ) : toolError ? (
-          <p className="text-[11px] text-rose-400">
-            Couldn&apos;t load today&apos;s tool.
-          </p>
-        ) : (
-          <>
-            {/* título de la tool, ahora desde el objeto */}
-            <p
-              className={`text-sm leading-snug ${
-                toolDone ? "text-cyan-200" : "text-slate-200"
-              }`}
-            >
-              {todaysToolTitle}
-            </p>
-
-            {/* botón I did this / Done for today */}
-            <div className="flex justify-end pt-2">
+          <section>
+            <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 space-y-2">
               <button
                 type="button"
-                onClick={handleToggleToolDone}
-                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors
+                onClick={() => setIsToolOpen((p) => !p)}
+                className="w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-500"
+              >
+                <div className="flex items-center gap-2">
+                  <Wrench size={13} className="text-cyan-400" />
+                  <span>Today&apos;s tool</span>
+                </div>
+
+                {isToolOpen ? (
+                  <ChevronUp size={14} className="text-slate-400" />
+                ) : (
+                  <ChevronDown size={14} className="text-slate-400" />
+                )}
+              </button>
+
+              {isToolOpen && (
+                <motion.div
+                  key="tool-content"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.18 }}
+                  className="space-y-2 pt-1"
+                >
+                  <p className="text-[11px] text-slate-400">
+                    One tiny action for messy days.
+                  </p>
+
+                  {/* estados del hook: loading / error / ok */}
+                  {toolLoading ? (
+                    <p className="text-[11px] text-slate-500 italic">
+                      Loading today&apos;s tool...
+                    </p>
+                  ) : toolError ? (
+                    <p className="text-[11px] text-rose-400">
+                      Couldn&apos;t load today&apos;s tool.
+                    </p>
+                  ) : (
+                    <>
+                      {/* título de la tool, ahora desde el objeto */}
+                      <p
+                        className={`text-sm leading-snug ${
+                          toolDone ? "text-cyan-200" : "text-slate-200"
+                        }`}
+                      >
+                        {todaysToolTitle}
+                      </p>
+
+                      {/* botón I did this / Done for today */}
+                      <div className="flex justify-end pt-2">
+                        <button
+                          type="button"
+                          onClick={handleToggleToolDone}
+                          className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors
                   ${
                     toolDone
                       ? "border-cyan-400 bg-cyan-400/10 text-cyan-200"
                       : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
                   }`}
-              >
-                <span className="text-[11px]">
-                  {toolDone ? "✓" : "○"}
-                </span>
-                <span>
-                  {toolDone ? "Done for today" : "I did this"}
-                </span>
-              </button>
+                        >
+                          <span className="text-[11px]">
+                            {toolDone ? "✓" : "○"}
+                          </span>
+                          <span>
+                            {toolDone ? "Done for today" : "I did this"}
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* punchline SOLO cuando está done */}
+                      {toolDone && toolDoneLine && (
+                        <p className="text-[11px] text-cyan-300 italic pt-2">
+                          {toolDoneLine}
+                        </p>
+                      )}
+
+                      {/* link para abrir el modal guiado (solo si hay tool y aún no está done) */}
+                      {!toolDone && todaysTool && (
+                        <div className="flex justify-end pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setIsToolGuideOpen(true)}
+                            className="inline-flex items-center gap-1 text-[10px] text-slate-400 underline underline-offset-2 hover:text-cyan-300"
+                          >
+                            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-500 text-[9px]">
+                              ?
+                            </span>
+                            <span>How do I do this?</span>
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </motion.div>
+              )}
             </div>
+          </section>
 
-            {/* punchline SOLO cuando está done */}
-            {toolDone && toolDoneLine && (
-              <p className="text-[11px] text-cyan-300 italic pt-2">
-                {toolDoneLine}
-              </p>
-            )}
-
-            {/* link para abrir el modal guiado (solo si hay tool y aún no está done) */}
-            {!toolDone && todaysTool && (
-              <div className="flex justify-end pt-1">
-                <button
-                  type="button"
-                  onClick={() => setIsToolGuideOpen(true)}
-                  className="inline-flex items-center gap-1 text-[10px] text-slate-400 underline underline-offset-2 hover:text-cyan-300"
-                >
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-500 text-[9px]">
-                    ?
-                  </span>
-                  <span>How do I do this?</span>
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </motion.div>
-    )}
-  </div>
-</section>
-
-
-          {/* 🔹 Just For Today block */}
+          {/* Just For Today */}
           <section className="space-y-2 pt-2">
             <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 space-y-2">
-              {/* Header button */}
               <button
                 type="button"
                 onClick={() => setIsJftOpen((p) => !p)}
@@ -537,7 +583,6 @@ const hasGroup = Boolean(userProfile?.groupCode);
                 )}
               </button>
 
-              {/* Content */}
               {isJftOpen && (
                 <div className="space-y-2 mt-1">
                   {jftLoading && (
@@ -561,18 +606,15 @@ const hasGroup = Boolean(userProfile?.groupCode);
 
                   {!jftLoading && jftEntry && (
                     <>
-                      {/* Date */}
                       <p className="text-[10px] text-slate-500">
                         {String(jftEntry.month).padStart(2, "0")}/
                         {String(jftEntry.day).padStart(2, "0")}
                       </p>
 
-                      {/* Title */}
                       <p className="text-sm text-slate-200 font-medium leading-snug">
                         {jftEntry.title}
                       </p>
 
-                      {/* Punchline */}
                       {Array.isArray(jftEntry.punchlines) &&
                         jftEntry.punchlines.length > 0 && (
                           <p className="text-[11px] text-cyan-300 italic mt-1">
@@ -588,7 +630,6 @@ const hasGroup = Boolean(userProfile?.groupCode);
                           </p>
                         )}
 
-                      {/* CTA */}
                       <div className="flex flex-col gap-2 pt-2">
                         <div className="flex items-center justify-end gap-2">
                           <Link
@@ -615,7 +656,7 @@ const hasGroup = Boolean(userProfile?.groupCode);
             </div>
           </section>
 
-          {/* BLOQUES INFERIORES — espaciado unificado */}
+          {/* BLOQUES INFERIORES */}
           <section className="space-y-4 pt-2">
             {/* YOUR MILESTONES */}
             {hasSoberDate && (
@@ -850,8 +891,8 @@ const hasGroup = Boolean(userProfile?.groupCode);
                     )}
 
                     <p className="text-[10px] text-slate-500">
-                      This isn&apos;t a competition. It&apos;s proof that
-                      people like you are still doing this.
+                      This isn&apos;t a competition. It&apos;s proof that people
+                      like you are still doing this.
                     </p>
                   </div>
                 )}

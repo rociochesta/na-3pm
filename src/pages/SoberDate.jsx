@@ -101,7 +101,7 @@ export default function SoberDate() {
     }
 
     const ok = window.confirm(
-      "Are you sure you want to clear your clean date? This doesn’t erase your story — it just resets the counter."
+      "Clear your clean date? This doesn’t erase your story or your wreckage — it just resets the counter."
     );
     if (!ok) return;
 
@@ -133,17 +133,16 @@ export default function SoberDate() {
               <div className="space-y-2">
                 <h1 className="text-xl font-semibold tracking-tight">
                   {hadExistingDate
-                    ? "When did your clean time really begin?"
-                    : "When did you choose recovery?"}
+                    ? "So… when did your clean time actually start?"
+                    : "When did you stop getting high on purpose?"}
                 </h1>
                 <p className="text-sm text-slate-200">
-                  We don&apos;t need the whole story — just the day everything
-                  quietly started to change.
+                  We don&apos;t need the TED talk — just the day your chaos
+                  took a smoke break.
                 </p>
                 <p className="text-xs text-slate-400">
-                  You&apos;re not being punished by being honest about this
-                  date. You&apos;re giving your future self a real anniversary
-                  to celebrate.
+                  Being honest about this date doesn&apos;t revoke your clean
+                  time. It just keeps your counter from lying on your behalf.
                 </p>
               </div>
             </div>
@@ -168,7 +167,8 @@ export default function SoberDate() {
                 />
                 <p className="text-xs text-slate-500">
                   Choose the first full day you weren&apos;t using. If
-                  you&apos;re changing this date, we won&apos;t ask why.
+                  you&apos;re changing this, we still won&apos;t ask what
+                  happened.
                 </p>
               </div>
 
@@ -207,9 +207,9 @@ export default function SoberDate() {
             </form>
 
             <p className="pt-2 text-center text-[11px] text-slate-500">
-              Changing your clean date doesn&apos;t undo your progress. It just
-              tells the truth about where you&apos;re standing today — and
-              that&apos;s more than enough.
+              Updating this date doesn&apos;t make you a failure. It makes you a
+              brutally honest addict — which is basically a superpower in this
+              program.
             </p>
           </section>
         </div>
