@@ -95,7 +95,7 @@ export default function Home() {
   useEffect(() => {
     const loadWelcome = async () => {
       try {
-        const res = await fetch("/.netlify/functions/get-welcome");
+        const res = await fetch("/.netlify/functions/get-welcome-message");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
@@ -374,7 +374,7 @@ export default function Home() {
       <main className="flex-1">
         <div className="max-w-md mx-auto px-4 py-6 space-y-6">
           {/* Hero premium con welcome rotativo */}
-          {/* Hero compacto */}
+{/* Hero compacto */}
 <section className="rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-3 flex items-start gap-3">
   <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/60">
     <Sparkles size={18} className="text-cyan-300" />
@@ -399,10 +399,8 @@ export default function Home() {
   </div>
 </section>
 
-         
 
-          {/* Badge + status */}
-       {/* Badge + status — ahora más premium */}
+{/* Badge + status — ahora más premium */}
 <section>
   {hasSoberDate ? (
     <div className="relative">
@@ -463,6 +461,117 @@ export default function Home() {
   )}
 </section>
 
+{/* TODAY'S TOOL — versión premium */}
+<section>
+  <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/85 px-4 py-4 shadow-lg shadow-black/40">
+
+    {/* soft glows */}
+    <div className="pointer-events-none absolute -right-10 -top-14 h-24 w-24 rounded-full bg-cyan-500/20 blur-3xl" />
+    <div className="pointer-events-none absolute -left-10 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-2xl" />
+
+    {/* Header collapsible */}
+    <button
+      type="button"
+      onClick={() => setIsToolOpen((p) => !p)}
+      className="relative z-10 w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-400"
+    >
+      <div className="flex items-center gap-2">
+        <div className="h-5 w-5 flex items-center justify-center rounded-full bg-slate-900/60 border border-cyan-400/40">
+          <Wrench size={11} className="text-cyan-300" />
+        </div>
+        <span>Today&apos;s Tool</span>
+      </div>
+
+      {isToolOpen ? (
+        <ChevronUp size={14} className="text-slate-400" />
+      ) : (
+        <ChevronDown size={14} className="text-slate-400" />
+      )}
+    </button>
+
+    {/* Content */}
+    {isToolOpen && (
+      <motion.div
+        key="tool-content"
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.22 }}
+        className="relative z-10 space-y-3 pt-3"
+      >
+        <p className="text-[11px] text-slate-400">
+          One tiny action to shift the whole day.
+        </p>
+
+        {/* loading / error / ok states */}
+        {toolLoading ? (
+          <p className="text-[11px] text-slate-500 italic">
+            Loading today&apos;s tool…
+          </p>
+        ) : toolError ? (
+          <p className="text-[11px] text-rose-400">
+            Couldn&apos;t load today&apos;s tool.
+          </p>
+        ) : (
+          <>
+            {/* Tool title */}
+            <p
+              className={`text-sm leading-snug font-medium ${
+                toolDone ? "text-cyan-200" : "text-slate-200"
+              }`}
+            >
+              {todaysToolTitle}
+            </p>
+
+            {/* “I did this” */}
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={handleToggleToolDone}
+                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[10px] font-medium transition-colors
+                  ${
+                    toolDone
+                      ? "border-cyan-400 bg-cyan-400/10 text-cyan-200"
+                      : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
+                  }`}
+              >
+                <span className="text-[11px]">
+                  {toolDone ? "✓" : "○"}
+                </span>
+                <span>{toolDone ? "Done for today" : "I did this"}</span>
+              </button>
+            </div>
+
+            {/* Punchline */}
+            {toolDone && toolDoneLine && (
+              <p className="text-[11px] text-cyan-300 italic pt-2 border-l border-cyan-400/30 pl-2">
+                {toolDoneLine}
+              </p>
+            )}
+
+            {/* “How do I do this?” link */}
+            {!toolDone && todaysTool && (
+              <div className="flex justify-end pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsToolGuideOpen(true)}
+                  className="inline-flex items-center gap-1 text-[10px] text-slate-400 underline underline-offset-2 hover:text-cyan-300"
+                >
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-600 text-[9px]">
+                    ?
+                  </span>
+                  <span>How do I do this?</span>
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </motion.div>
+    )}
+  </div>
+</section>
+
+        
 
           {/* Just For Today */}
           <section className="space-y-2 pt-2">
