@@ -1,44 +1,33 @@
+// src/utils/getTimeUntilMeeting.js
+
 export function getTimeUntilMeeting() {
   const now = new Date();
 
-  // construir la hora de la reunión en zona Edmonton
-  const meetingInEdmonton = new Date(
-    new Intl.DateTimeFormat("en-CA", {
-      timeZone: "America/Edmonton",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(new Date())
+  // Hora actual "vista" desde Edmonton
+  const edmontonNow = new Date(
+    now.toLocaleString("en-CA", { timeZone: "America/Edmonton" })
   );
 
-  // poner la hora a exactamente 15:00 Edmonton time
-  meetingInEdmonton.setHours(15, 0, 0, 0);
+  // Próxima reunión: 15:00 (3PM) en Edmonton, hoy
+  const edmontonMeeting = new Date(edmontonNow);
+  edmontonMeeting.setHours(15, 0, 0, 0);
 
-  // convertir esa hora Edmonton → timestamp real
-  const meetingLocalTimestamp = new Date(
-    meetingInEdmonton.toLocaleString("en-CA", {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    })
-  );
-
-  let diffMs = meetingLocalTimestamp - now;
-
-  // si ya pasó hoy → usar mañana
-  if (diffMs < 0) {
-    meetingInEdmonton.setDate(meetingInEdmonton.getDate() + 1);
-    const tomorrowLocal = new Date(
-      meetingInEdmonton.toLocaleString("en-CA", {
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      })
-    );
-    diffMs = tomorrowLocal - now;
+  // Si ya pasó la reunión de hoy, usamos mañana
+  if (edmontonNow > edmontonMeeting) {
+    edmontonMeeting.setDate(edmontonMeeting.getDate() + 1);
   }
 
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+  // Diferencia en ms (en "tiempo Edmonton": es la misma para todo el mundo)
+  const diffMs = edmontonMeeting - edmontonNow;
+
+  if (diffMs <= 0) return "starting now";
+
+  const totalMinutes = Math.round(diffMs / (1000 * 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours === 0) return `in ${minutes}m`;
+  if (minutes === 0) return `in ${hours}h`;
 
   return `in ${hours}h ${minutes}m`;
 }

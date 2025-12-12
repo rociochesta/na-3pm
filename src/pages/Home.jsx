@@ -245,16 +245,16 @@ const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
       cancelled = true;
     };
   }, [reachedMilestones]);
-  useEffect(() => {
+useEffect(() => {
   function update() {
     setTimeUntilMeeting(getTimeUntilMeeting());
   }
 
-  update(); // primera carga
-  const id = setInterval(update, 30 * 1000); // actualizar cada 30s
-
+  update(); // primera vez
+  const id = setInterval(update, 30 * 1000); // cada 30s
   return () => clearInterval(id);
 }, []);
+
 
 
   // Fecha bonita “Since Nov 23, 2025”
