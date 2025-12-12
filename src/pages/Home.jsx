@@ -374,194 +374,95 @@ export default function Home() {
       <main className="flex-1">
         <div className="max-w-md mx-auto px-4 py-6 space-y-6">
           {/* Hero premium con welcome rotativo */}
-          <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-cyan-950/80 via-slate-950 to-slate-900 px-4 py-5 shadow-xl shadow-black/40">
-            <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-cyan-500/25 blur-3xl" />
-            <div className="pointer-events-none absolute -left-8 bottom-0 h-24 w-24 rounded-full bg-sky-400/15 blur-2xl" />
+          {/* Hero compacto */}
+<section className="rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-3 flex items-start gap-3">
+  <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/60">
+    <Sparkles size={18} className="text-cyan-300" />
+  </div>
 
-            <div className="relative flex items-start gap-3">
-              <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/70 shadow-inner shadow-black/50">
-                <Sparkles size={22} className="text-cyan-300" />
-              </div>
+  <div className="space-y-1">
+    <h2 className="text-sm font-semibold leading-snug">
+      {welcomeHeadline}
+    </h2>
 
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold tracking-tight">
-                  {welcomeHeadline}
-                </h2>
+    {welcomeSubline && (
+      <p className="text-[12px] text-slate-300 leading-snug">
+        {welcomeSubline}
+      </p>
+    )}
 
-                <p className="text-sm text-slate-200">
-                  {welcomeSubline}
-                </p>
+    {userProfile?.name && (
+      <p className="text-[11px] text-slate-500">
+        Hi {userProfile.name}. However yesterday went, you still made it here.
+      </p>
+    )}
+  </div>
+</section>
 
-                {userProfile?.name && (
-                  <p className="text-[11px] text-slate-400">
-                    Hi {userProfile.name}. This is your 3PM dashboard. However
-                    yesterday went, you still made it here.
-                  </p>
-                )}
-              </div>
-            </div>
-          </section>
+         
 
           {/* Badge + status */}
-          <section>
-            {hasSoberDate ? (
-              <div className="relative">
-                {/* glow */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-cyan-500/30 via-sky-400/10 to-purple-500/20 blur-lg opacity-60 pointer-events-none" />
-                {/* main card */}
-                <div className="relative bg-slate-900/90 border border-slate-800 rounded-3xl px-5 py-5 space-y-3 shadow-lg">
-                  <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-slate-400">
-                    <span>Clean badge</span>
-                  </div>
+       {/* Badge + status — ahora más premium */}
+<section>
+  {hasSoberDate ? (
+    <div className="relative">
+      {/* glow fuerte detrás de la badge */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-cyan-500/30 via-sky-400/10 to-purple-500/25 blur-xl opacity-70 pointer-events-none" />
 
-                  <div className="mt-1 flex items-center gap-3">
-                    <div className="flex items-center justify-center">
-                      <NeonBadge num={daysClean} />
-                    </div>
+      {/* tarjeta principal */}
+      <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-5 py-5 shadow-xl shadow-black/40">
+        <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-slate-400 mb-1">
+          <span>Clean badge</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/70 border border-slate-700 text-slate-300">
+            {daysClean} day{daysClean === 1 ? "" : "s"} in
+          </span>
+        </div>
 
-                    <div className="flex flex-col">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
-                        Days clean
-                      </span>
-                      <span className="text-[11px] text-slate-400 mt-1">
-                        This is how long you&apos;ve been annoying your
-                        addiction on purpose.
-                      </span>
-                      {cleanDateLabel && (
-                        <span className="text-[10px] text-slate-500 mt-1">
-                          Since {cleanDateLabel}. Your old dealer is bored.
-                        </span>
-                      )}
-                    </div>
-                  </div>
+        <div className="mt-1 flex items-center gap-3">
+          <div className="flex items-center justify-center">
+            <NeonBadge num={daysClean} />
+          </div>
 
-                  <Link
-                    to="/sober-date"
-                    className="inline-flex items-center gap-1 text-[10px] text-slate-500 hover:text-cyan-300 underline underline-offset-2 mt-1"
-                  >
-                    Change date
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/80 px-5 py-4 space-y-2">
-                <p className="text-sm text-slate-200">
-                  Set your clean date so we can start counting the days you
-                  didn&apos;t self-destruct on purpose.
-                </p>
-
-                <Link
-                  to="/sober-date"
-                  className="inline-flex mt-2 text-xs font-medium text-cyan-300 hover:text-cyan-200 underline underline-offset-4"
-                >
-                  Set clean date
-                </Link>
-              </div>
+          <div className="flex flex-col">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+              Days clean
+            </span>
+            <span className="text-[11px] text-slate-300 mt-1">
+              This is how long you&apos;ve been annoying your addiction on purpose.
+            </span>
+            {cleanDateLabel && (
+              <span className="text-[10px] text-slate-500 mt-1">
+                Since {cleanDateLabel}. Your old dealer is bored.
+              </span>
             )}
-          </section>
+          </div>
+        </div>
 
-          {/* TODAY'S TOOL (card estándar) */}
-          <section>
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 space-y-2">
-              <button
-                type="button"
-                onClick={() => setIsToolOpen((p) => !p)}
-                className="w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-500"
-              >
-                <div className="flex items-center gap-2">
-                  <Wrench size={13} className="text-cyan-400" />
-                  <span>Today&apos;s tool</span>
-                </div>
+        <Link
+          to="/sober-date"
+          className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-cyan-300 underline underline-offset-2 mt-3"
+        >
+          Change date
+        </Link>
+      </div>
+    </div>
+  ) : (
+    <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/80 px-5 py-4 space-y-2">
+      <p className="text-sm text-slate-200">
+        Set your clean date so we can start counting the days you
+        didn&apos;t self-destruct on purpose.
+      </p>
 
-                {isToolOpen ? (
-                  <ChevronUp size={14} className="text-slate-400" />
-                ) : (
-                  <ChevronDown size={14} className="text-slate-400" />
-                )}
-              </button>
+      <Link
+        to="/sober-date"
+        className="inline-flex mt-2 text-xs font-medium text-cyan-300 hover:text-cyan-200 underline underline-offset-4"
+      >
+        Set clean date
+      </Link>
+    </div>
+  )}
+</section>
 
-              {isToolOpen && (
-                <motion.div
-                  key="tool-content"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.18 }}
-                  className="space-y-2 pt-1"
-                >
-                  <p className="text-[11px] text-slate-400">
-                    One tiny action for messy days.
-                  </p>
-
-                  {/* estados del hook: loading / error / ok */}
-                  {toolLoading ? (
-                    <p className="text-[11px] text-slate-500 italic">
-                      Loading today&apos;s tool...
-                    </p>
-                  ) : toolError ? (
-                    <p className="text-[11px] text-rose-400">
-                      Couldn&apos;t load today&apos;s tool.
-                    </p>
-                  ) : (
-                    <>
-                      {/* título de la tool, ahora desde el objeto */}
-                      <p
-                        className={`text-sm leading-snug ${
-                          toolDone ? "text-cyan-200" : "text-slate-200"
-                        }`}
-                      >
-                        {todaysToolTitle}
-                      </p>
-
-                      {/* botón I did this / Done for today */}
-                      <div className="flex justify-end pt-2">
-                        <button
-                          type="button"
-                          onClick={handleToggleToolDone}
-                          className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors
-                  ${
-                    toolDone
-                      ? "border-cyan-400 bg-cyan-400/10 text-cyan-200"
-                      : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
-                  }`}
-                        >
-                          <span className="text-[11px]">
-                            {toolDone ? "✓" : "○"}
-                          </span>
-                          <span>
-                            {toolDone ? "Done for today" : "I did this"}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* punchline SOLO cuando está done */}
-                      {toolDone && toolDoneLine && (
-                        <p className="text-[11px] text-cyan-300 italic pt-2">
-                          {toolDoneLine}
-                        </p>
-                      )}
-
-                      {/* link para abrir el modal guiado (solo si hay tool y aún no está done) */}
-                      {!toolDone && todaysTool && (
-                        <div className="flex justify-end pt-1">
-                          <button
-                            type="button"
-                            onClick={() => setIsToolGuideOpen(true)}
-                            className="inline-flex items-center gap-1 text-[10px] text-slate-400 underline underline-offset-2 hover:text-cyan-300"
-                          >
-                            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-500 text-[9px]">
-                              ?
-                            </span>
-                            <span>How do I do this?</span>
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </motion.div>
-              )}
-            </div>
-          </section>
 
           {/* Just For Today */}
           <section className="space-y-2 pt-2">
