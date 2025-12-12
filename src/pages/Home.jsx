@@ -46,6 +46,7 @@ const ICONS = {
   medal: Medal,
 };
 import BottomNav from "../components/BottomNav";
+import { AnimatePresence } from "framer-motion";
 
 
 
