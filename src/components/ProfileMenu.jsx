@@ -69,7 +69,7 @@ export default function ProfileMenu({ userProfile, onClose }) {
         {cleanDate && (
           <div className="flex items-center gap-2 mb-3 text-[11px] text-slate-400">
             <CalendarClock size={13} className="text-cyan-300" />
-            <span>Sober date: {cleanDate}</span>
+            <span>Clean date: {cleanDate}</span>
           </div>
         )}
 
@@ -92,7 +92,7 @@ export default function ProfileMenu({ userProfile, onClose }) {
             className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-800 text-left"
           >
             <CalendarClock size={14} className="text-slate-400" />
-            <span>Change sober date</span>
+            <span>Change clean date</span>
           </button>
 
           {/* TODO: multi-group */}

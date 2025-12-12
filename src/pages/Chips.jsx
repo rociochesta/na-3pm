@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Header3PM from "../components/Header3PM";
+import BottomNav from "../components/BottomNav";
+
 
 const CHIP_DEFS = [
   {
@@ -194,6 +196,7 @@ export default function Chips() {
           </p>
         </div>
       </main>
+          <BottomNav />
     </div>
   );
 }

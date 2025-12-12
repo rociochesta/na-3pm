@@ -3,6 +3,8 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RefreshCcw, Eraser } from "lucide-react";
 import Header3PM from "../components/Header3PM.jsx";
+import BottomNav from "../components/BottomNav";
+
 
 const PROMPTS = [
   "What didn’t emotionally assassinate you today?",
@@ -533,6 +535,7 @@ export default function AddGratitude() {
           </p>
         </div>
       </main>
+          <BottomNav />
     </div>
   );
 }

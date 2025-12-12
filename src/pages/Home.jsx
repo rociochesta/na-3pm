@@ -45,6 +45,9 @@ const ICONS = {
   king: ChessKing,
   medal: Medal,
 };
+import BottomNav from "../components/BottomNav";
+
+
 
 export default function Home() {
   const navigate = useNavigate();
@@ -461,15 +464,14 @@ export default function Home() {
   )}
 </section>
 
-{/* TODAY'S TOOL — versión premium */}
+{/* TODAY'S TOOL — versión premium con micro-animación */}
 <section>
   <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/85 px-4 py-4 shadow-lg shadow-black/40">
-
-    {/* soft glows */}
+    {/* glows suaves */}
     <div className="pointer-events-none absolute -right-10 -top-14 h-24 w-24 rounded-full bg-cyan-500/20 blur-3xl" />
     <div className="pointer-events-none absolute -left-10 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-2xl" />
 
-    {/* Header collapsible */}
+    {/* Header colapsable */}
     <button
       type="button"
       onClick={() => setIsToolOpen((p) => !p)}
@@ -479,7 +481,7 @@ export default function Home() {
         <div className="h-5 w-5 flex items-center justify-center rounded-full bg-slate-900/60 border border-cyan-400/40">
           <Wrench size={11} className="text-cyan-300" />
         </div>
-        <span>Today&apos;s Tool</span>
+        <span>Today&apos;s tool</span>
       </div>
 
       {isToolOpen ? (
@@ -489,7 +491,7 @@ export default function Home() {
       )}
     </button>
 
-    {/* Content */}
+    {/* Contenido */}
     {isToolOpen && (
       <motion.div
         key="tool-content"
@@ -503,7 +505,7 @@ export default function Home() {
           One tiny action to shift the whole day.
         </p>
 
-        {/* loading / error / ok states */}
+        {/* estados del hook: loading / error / ok */}
         {toolLoading ? (
           <p className="text-[11px] text-slate-500 italic">
             Loading today&apos;s tool…
@@ -514,7 +516,7 @@ export default function Home() {
           </p>
         ) : (
           <>
-            {/* Tool title */}
+            {/* título de la tool */}
             <p
               className={`text-sm leading-snug font-medium ${
                 toolDone ? "text-cyan-200" : "text-slate-200"
@@ -523,33 +525,53 @@ export default function Home() {
               {todaysToolTitle}
             </p>
 
-            {/* “I did this” */}
+            {/* botón I did this con animación */}
             <div className="flex justify-end pt-1">
-              <button
+              <motion.button
                 type="button"
                 onClick={handleToggleToolDone}
-                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[10px] font-medium transition-colors
-                  ${
-                    toolDone
-                      ? "border-cyan-400 bg-cyan-400/10 text-cyan-200"
-                      : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
-                  }`}
+                whileTap={{ scale: 0.94 }}
+                animate={toolDone ? { scale: 1.03 } : { scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 18 }}
+                className="relative inline-flex items-center"
               >
-                <span className="text-[11px]">
-                  {toolDone ? "✓" : "○"}
+                {/* glow que aparece solo cuando está done */}
+                <AnimatePresence>
+                  {toolDone && (
+                    <motion.span
+                      key="tool-glow"
+                      initial={{ opacity: 0, scale: 0.6 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.6 }}
+                      className="absolute inset-0 rounded-full bg-cyan-400/25 blur-sm"
+                    />
+                  )}
+                </AnimatePresence>
+
+                <span
+                  className={`relative inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[10px] font-medium transition-colors
+                    ${
+                      toolDone
+                        ? "border-cyan-400 bg-cyan-400/10 text-cyan-100"
+                        : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
+                    }`}
+                >
+                  <span className="text-[11px]">
+                    {toolDone ? "✓" : "○"}
+                  </span>
+                  <span>{toolDone ? "Done for today" : "I did this"}</span>
                 </span>
-                <span>{toolDone ? "Done for today" : "I did this"}</span>
-              </button>
+              </motion.button>
             </div>
 
-            {/* Punchline */}
+            {/* punchline SOLO cuando está done */}
             {toolDone && toolDoneLine && (
               <p className="text-[11px] text-cyan-300 italic pt-2 border-l border-cyan-400/30 pl-2">
                 {toolDoneLine}
               </p>
             )}
 
-            {/* “How do I do this?” link */}
+            {/* link al modal guiado */}
             {!toolDone && todaysTool && (
               <div className="flex justify-end pt-1">
                 <button
@@ -571,100 +593,65 @@ export default function Home() {
   </div>
 </section>
 
+
         
 
-          {/* Just For Today */}
-          <section className="space-y-2 pt-2">
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 space-y-2">
-              <button
-                type="button"
-                onClick={() => setIsJftOpen((p) => !p)}
-                className="w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-500"
-              >
-                <div className="flex items-center gap-2">
-                  <BookOpen size={13} className="text-cyan-300" />
-                  <span>Just for Today</span>
-                </div>
+        {/* JFT – Premium teaser (sin CTA) */}
+<section className="pt-2">
+  <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 to-slate-900 px-4 py-4 shadow-lg shadow-black/30">
 
-                {isJftOpen ? (
-                  <ChevronUp size={14} className="text-slate-400" />
-                ) : (
-                  <ChevronDown size={14} className="text-slate-400" />
-                )}
-              </button>
+    {/* Glow decorativo */}
+    <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-cyan-500/20 blur-2xl" />
+    <div className="pointer-events-none absolute -left-8 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-xl" />
 
-              {isJftOpen && (
-                <div className="space-y-2 mt-1">
-                  {jftLoading && (
-                    <p className="text-[11px] text-slate-500">
-                      Loading today&apos;s meditation…
-                    </p>
-                  )}
+    {/* Header */}
+    <div className="flex items-center gap-2 mb-1">
+      <BookOpen size={14} className="text-cyan-300" />
+      <span className="text-xs uppercase tracking-[0.16em] text-slate-500">
+        Just for Today
+      </span>
+    </div>
 
-                  {jftError && (
-                    <p className="text-[11px] text-rose-300">
-                      Couldn&apos;t load JFT summaries. Check your JSON on
-                      Netlify.
-                    </p>
-                  )}
+    {/* Loading / error states */}
+    {jftLoading && (
+      <p className="text-[11px] text-slate-500 italic">Loading…</p>
+    )}
 
-                  {!jftLoading && !jftError && !jftEntry && (
-                    <p className="text-[11px] text-slate-500">
-                      No JFT summary set for today yet.
-                    </p>
-                  )}
+    {jftError && (
+      <p className="text-[11px] text-rose-300">
+        Couldn’t load today’s meditation.
+      </p>
+    )}
 
-                  {!jftLoading && jftEntry && (
-                    <>
-                      <p className="text-[10px] text-slate-500">
-                        {String(jftEntry.month).padStart(2, "0")}/
-                        {String(jftEntry.day).padStart(2, "0")}
-                      </p>
+    {/* Content teaser */}
+    {!jftLoading && !jftError && jftEntry && (
+      <>
+        {/* Título del día */}
+        <p className="text-sm font-medium text-slate-200 leading-snug line-clamp-1">
+          {jftEntry.title}
+        </p>
 
-                      <p className="text-sm text-slate-200 font-medium leading-snug">
-                        {jftEntry.title}
-                      </p>
+        {/* Punchline corta */}
+        {Array.isArray(jftEntry.punchlines) &&
+          jftEntry.punchlines.length > 0 && (
+            <p className="text-[11px] text-cyan-300 italic mt-1 line-clamp-1">
+              “{
+                jftEntry.punchlines[
+                  Math.floor(Math.random() * jftEntry.punchlines.length)
+                ]
+              }”
+            </p>
+          )}
+      </>
+    )}
 
-                      {Array.isArray(jftEntry.punchlines) &&
-                        jftEntry.punchlines.length > 0 && (
-                          <p className="text-[11px] text-cyan-300 italic mt-1">
-                            “
-                            {
-                              jftEntry.punchlines[
-                                Math.floor(
-                                  Math.random() * jftEntry.punchlines.length
-                                )
-                              ]
-                            }
-                            ”
-                          </p>
-                        )}
+    {/* No entry */}
+    {!jftLoading && !jftError && !jftEntry && (
+      <p className="text-[11px] text-slate-500">No entry for today.</p>
+    )}
+  </div>
+</section>
 
-                      <div className="flex flex-col gap-2 pt-2">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            to="/jft"
-                            className="inline-flex items-center gap-1 rounded-full border border-cyan-400 px-3 py-1 text-[10px] font-medium text-cyan-100 hover:bg-cyan-400/10 transition-colors"
-                          >
-                            Read summary
-                          </Link>
-
-                          <a
-                            href="https://www.jftna.org/jft/"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded-full border border-slate-600 px-3 py-1 text-[10px] font-medium text-slate-200 hover:bg-slate-800/80 transition-colors"
-                          >
-                            Official JFT
-                          </a>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </section>
 
           {/* BLOQUES INFERIORES */}
           <section className="space-y-4 pt-2">
@@ -1093,6 +1080,7 @@ export default function Home() {
           </Link>
         </div>
       </main>
+          <BottomNav />
     </div>
   );
 }

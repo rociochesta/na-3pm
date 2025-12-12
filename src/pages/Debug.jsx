@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Code } from "lucide-react";
+import BottomNav from "../components/BottomNav";
+
 
 export default function Debug() {
   const [entries, setEntries] = useState([]);
@@ -102,6 +104,7 @@ export default function Debug() {
           )}
         </section>
       </main>
+          <BottomNav />
     </div>
   );
 }

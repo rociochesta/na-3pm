@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SquareX, Copy, Share2 } from "lucide-react";
 import Header3PM from "../components/Header3PM";
+import BottomNav from "../components/BottomNav";
+
 
 export default function Gratitudes() {
   const navigate = useNavigate();
@@ -251,6 +253,7 @@ export default function Gratitudes() {
           </div>
         </div>
       </main>
+          <BottomNav />
     </div>
   );
 }

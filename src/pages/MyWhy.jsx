@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header3PM from "../components/Header3PM";
+import BottomNav from "../components/BottomNav";
+
 
 export default function MyWhy() {
   const [savedWhy, setSavedWhy] = useState("");
@@ -134,6 +136,7 @@ export default function MyWhy() {
           </p>
         </div>
       </main>
+          <BottomNav />
     </div>
   );
 }

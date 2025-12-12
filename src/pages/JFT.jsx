@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { BookOpen, ChevronLeft, CalendarDays, Tag } from "lucide-react";
 import Header3PM from "../components/Header3PM.jsx";
 import { useTodayJFT } from "../hooks/useTodayJFT.js";
+import BottomNav from "../components/BottomNav";
+
 
 const MONTH_NAMES = [
   "January",
@@ -156,6 +158,7 @@ export default function JFT() {
           </section>
         </div>
       </main>
+          <BottomNav />
     </div>
   );
 }

@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header3PM from "../components/Header3PM.jsx";
+import BottomNav from "../components/BottomNav";
+
 
 export default function Login() {
   const navigate = useNavigate();

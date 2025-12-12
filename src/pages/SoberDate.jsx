@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sunrise, AlertTriangle } from "lucide-react";
 import Header3PM from "../components/Header3PM";
+import BottomNav from "../components/BottomNav";
+
 
 export default function SoberDate() {
   const navigate = useNavigate();
@@ -214,6 +216,7 @@ export default function SoberDate() {
           </section>
         </div>
       </main>
+          <BottomNav />
     </div>
   );
 }

@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { BOSS_PIN } from "../constants/bossConfig.js";
 import { ArrowLeft } from "lucide-react";
+import BottomNav from "../components/BottomNav";
+
 
 export default function BossAccess() {
   const nav = useNavigate();
@@ -54,6 +56,7 @@ export default function BossAccess() {
           </button>
         </form>
       </main>
+          <BottomNav />
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { ArrowLeft, Users, Plus, Quote } from "lucide-react";
 
 import { loadGroupMembers } from "../constants/groupMembers.js";
 import { SLOGAN_SETS } from "../constants/slogans.js";
+import BottomNav from "../components/BottomNav";
+
 
 export default function Admin() {
   const [name, setName] = useState("");
@@ -256,6 +258,7 @@ export default function Admin() {
 </section>
 
       </main>
+          <BottomNav />
     </div>
   );
 }
