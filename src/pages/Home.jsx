@@ -95,7 +95,7 @@ export default function Home() {
   useEffect(() => {
     const loadWelcome = async () => {
       try {
-        const res = await fetch("/.netlify/functions/get-welcome-message");
+        const res = await fetch("/.netlify/functions/get-welcome");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
