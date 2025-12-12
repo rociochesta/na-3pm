@@ -1,7 +1,7 @@
 // src/pages/SoberDate.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Droplet } from "lucide-react";
+import { Sunrise, AlertTriangle } from "lucide-react";
 import Header3PM from "../components/Header3PM";
 
 export default function SoberDate() {
@@ -95,6 +95,16 @@ export default function SoberDate() {
   };
 
   const handleClear = () => {
+    if (!date) {
+      setError("");
+      return;
+    }
+
+    const ok = window.confirm(
+      "Are you sure you want to clear your clean date? This doesn’t erase your story — it just resets the counter."
+    );
+    if (!ok) return;
+
     try {
       window.localStorage.removeItem("na_soberDate");
     } catch {
@@ -110,37 +120,37 @@ export default function SoberDate() {
       <Header3PM />
 
       <main className="flex-1">
-        <div className="max-w-md mx-auto px-4 py-8 space-y-6">
-
+        <div className="max-w-md mx-auto px-4 py-10 space-y-7">
           {/* Hero ilustrado */}
-          <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-cyan-950/70 via-slate-950 to-slate-900 px-4 py-5 shadow-xl shadow-black/40">
-            <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-cyan-500/20 blur-3xl" />
-            <div className="pointer-events-none absolute -left-6 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-2xl" />
+          <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-cyan-950/80 via-slate-950 to-slate-900 px-4 py-6 shadow-xl shadow-black/40">
+            <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-cyan-500/25 blur-3xl" />
+            <div className="pointer-events-none absolute -left-8 bottom-0 h-24 w-24 rounded-full bg-sky-400/15 blur-2xl" />
 
             <div className="flex items-start gap-3 relative">
-              <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-950/70 border border-cyan-400/60">
-                <Droplet size={20} className="text-cyan-300" />
+              <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/70 shadow-inner shadow-black/50">
+                <Sunrise size={22} className="text-cyan-300" />
               </div>
               <div className="space-y-2">
-                <h1 className="text-lg font-semibold tracking-tight">
+                <h1 className="text-xl font-semibold tracking-tight">
                   {hadExistingDate
-                    ? "Update your clean date."
-                    : "When did you stop using?"}
+                    ? "When did your clean time really begin?"
+                    : "When did you choose recovery?"}
                 </h1>
                 <p className="text-sm text-slate-200">
-                  No ceremony. No confession. Just the day your life quietly
-                  started again.
+                  We don&apos;t need the whole story — just the day everything
+                  quietly started to change.
                 </p>
                 <p className="text-xs text-slate-400">
-                  Changing this date doesn&apos;t erase your story. It just
-                  keeps the counter honest about where you are today.
+                  You&apos;re not being punished by being honest about this
+                  date. You&apos;re giving your future self a real anniversary
+                  to celebrate.
                 </p>
               </div>
             </div>
           </section>
 
           {/* Card de formulario */}
-          <section className="rounded-2xl border border-slate-800 bg-slate-950/90 shadow-lg shadow-black/40 px-4 py-5 space-y-4">
+          <section className="rounded-2xl border border-slate-800 bg-slate-950/95 shadow-lg shadow-black/40 px-4 py-6 space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label
@@ -157,8 +167,8 @@ export default function SoberDate() {
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-50 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
                 />
                 <p className="text-xs text-slate-500">
-                  Pick the first full day you weren&apos;t using. If you&apos;re
-                  changing this date, we won&apos;t ask why.
+                  Choose the first full day you weren&apos;t using. If
+                  you&apos;re changing this date, we won&apos;t ask why.
                 </p>
               </div>
 
@@ -172,7 +182,7 @@ export default function SoberDate() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="w-full text-sm font-semibold tracking-wide border border-cyan-400 text-cyan-50 rounded-xl py-2.5 hover:bg-cyan-400/10 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  className="w-full text-sm font-semibold tracking-wide rounded-xl py-2.5 bg-cyan-500 text-slate-950 hover:bg-cyan-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-md shadow-cyan-500/25"
                 >
                   {saving ? "Saving…" : "Save clean date"}
                 </button>
@@ -180,7 +190,7 @@ export default function SoberDate() {
                 <button
                   type="button"
                   onClick={() => navigate("/")}
-                  className="w-full text-sm font-semibold tracking-wide border border-slate-600 text-slate-200 rounded-xl py-2.5 hover:bg-slate-800/80 transition-colors"
+                  className="w-full text-sm font-semibold tracking-wide rounded-xl py-2.5 border border-slate-600 text-slate-200 hover:bg-slate-800/80 transition-colors"
                 >
                   Cancel
                 </button>
@@ -188,16 +198,18 @@ export default function SoberDate() {
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="w-full text-xs text-slate-500 underline underline-offset-4 mt-1 hover:text-slate-300"
+                  className="w-full mt-2 inline-flex items-center justify-center gap-2 text-xs text-red-300 hover:text-red-200"
                 >
-                  Clear clean date
+                  <AlertTriangle size={13} />
+                  <span>Clear clean date</span>
                 </button>
               </div>
             </form>
 
-            <p className="pt-1 text-center text-[11px] text-slate-500">
-              Recovery isn&apos;t ruined by an honest date.{" "}
-              It just gives your future self a truthful anniversary to celebrate.
+            <p className="pt-2 text-center text-[11px] text-slate-500">
+              Changing your clean date doesn&apos;t undo your progress. It just
+              tells the truth about where you&apos;re standing today — and
+              that&apos;s more than enough.
             </p>
           </section>
         </div>
