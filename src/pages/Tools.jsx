@@ -46,6 +46,9 @@ export default function ToolsPage() {
   const [sections, setSections] = useState([]);
   const [sectionsLoading, setSectionsLoading] = useState(true);
   const [sectionsError, setSectionsError] = useState(""); // ✅ faltaba
+  const [toolsWelcomeHeadline, setToolsWelcomeHeadline] = useState("");
+const [toolsWelcomeSubline, setToolsWelcomeSubline] = useState("");
+
 // ─────────────────────────────────────────────
 // Load TOOLS welcome message from Netlify
 // ─────────────────────────────────────────────
