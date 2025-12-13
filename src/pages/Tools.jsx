@@ -1,6 +1,6 @@
 // src/pages/Tools.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Hammer,
   Sparkles,
@@ -32,6 +32,7 @@ const ICONS = {
 
 export default function ToolsPage() {
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ hook dentro del componente
 
   const [soberDate, setSoberDate] = useState(null);
   const [daysClean, setDaysClean] = useState(null);
@@ -44,41 +45,37 @@ export default function ToolsPage() {
   // ✅ Toolbox sections from DB (via Netlify function)
   const [sections, setSections] = useState([]);
   const [sectionsLoading, setSectionsLoading] = useState(true);
+  const [sectionsError, setSectionsError] = useState(""); // ✅ faltaba
 
+  // ✅ recargar secciones cada vez que vuelves a /tools
   useEffect(() => {
     let ignore = false;
 
-    async function load() {
+    async function loadSections() {
       try {
         setSectionsLoading(true);
-        const res = await fetch("/.netlify/functions/get-toolbox-sections", {
-          method: "GET",
-        });
+        setSectionsError("");
 
-        if (!res.ok) {
-          const txt = await res.text();
-          throw new Error(
-            `get-toolbox-sections failed: ${res.status} – ${txt || "no body"}`
-          );
-        }
+        const res = await fetch("/.netlify/functions/get-toolbox-sections");
+        if (!res.ok) throw new Error("Failed to load toolbox sections");
 
         const json = await res.json();
-        const list = Array.isArray(json.sections) ? json.sections : [];
+        const next = Array.isArray(json.sections) ? json.sections : [];
 
-        if (!ignore) setSections(list);
+        if (!ignore) setSections(next);
       } catch (e) {
-        console.error("ToolsPage: load toolbox sections error:", e);
-        if (!ignore) setSections([]);
+        if (!ignore) {
+          setSectionsError(e?.message || "Failed to load sections");
+          // NO: setSections([])  ← así evitas quedarte en "empty" por un error momentáneo
+        }
       } finally {
         if (!ignore) setSectionsLoading(false);
       }
     }
 
-    load();
-    return () => {
-      ignore = true;
-    };
-  }, []);
+    loadSections();
+    return () => (ignore = true);
+  }, [location.key]);
 
   // leer clean date local (Home ya se encarga de sincronizar con DB)
   useEffect(() => {
@@ -122,8 +119,7 @@ export default function ToolsPage() {
     (toolLoading ? "Loading today’s tool…" : "No tool assigned for today yet.");
 
   const todaysToolTagline =
-    todaysTool?.tagline ||
-    "One tiny action for when white-knuckling isn’t working.";
+    todaysTool?.tagline || "One tiny action for when white-knuckling isn’t working.";
 
   function handleToggleToolDone() {
     const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -137,7 +133,6 @@ export default function ToolsPage() {
         if (next) {
           window.localStorage.setItem(doneKey, "1");
 
-          // punchline desde la tool de hoy o fallback
           let line = "";
           if (
             todaysTool &&
@@ -171,61 +166,50 @@ export default function ToolsPage() {
 
       <main className="flex-1">
         <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-          {/* HERO / INTRO */}
-          <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-4 shadow-xl shadow-black/40">
-            <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-cyan-500/25 blur-3xl" />
-            <div className="pointer-events-none absolute -left-12 bottom-0 h-24 w-24 rounded-full bg-sky-400/15 blur-2xl" />
+      {/* HERO / INTRO — Option C (almost invisible, premium) */}
+<section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/40 px-4 py-3 shadow-lg shadow-black/30">
+  {/* ultra-soft glow (barely there) */}
+  <div className="pointer-events-none absolute -right-16 -top-16 h-28 w-28 rounded-full bg-cyan-500/10 blur-3xl" />
+  <div className="pointer-events-none absolute -left-20 -bottom-16 h-24 w-24 rounded-full bg-sky-400/5 blur-3xl" />
 
-            <div className="relative flex items-start gap-3">
-              <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/70 shadow-inner shadow-black/50">
-                <Wrench size={11} className="text-cyan-300" />
-              </div>
+  <div className="relative flex items-center gap-3">
+    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-950/60 border border-slate-800">
+      <Hammer size={12} className="text-cyan-300" />
+    </div>
 
-              <div className="space-y-1">
-                <h1 className="text-lg font-semibold tracking-tight">
-                  Tools for when “I’m fine” is a lie.
-                </h1>
-                <p className="text-sm text-slate-200">
-                  Not every day needs a spiritual awakening. Sometimes you just
-                  need one small action that doesn&apos;t make things worse.
-                </p>
-                <p className="text-[11px] text-slate-400">
-                  Pick one. Ignore the rest. Existing today already counts as
-                  effort.
-                </p>
-              </div>
-            </div>
-          </section>
+    <h1 className="text-[15px] font-semibold tracking-tight text-slate-100">
+      Tools for when “I’m fine” is a lie.
+    </h1>
+  </div>
+</section>
 
-          {/* TODAY'S TOOL — MISMO BLOQUE QUE EN HOME */}
+
+          {/* TODAY'S TOOL */}
           <section>
             <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-950 to-slate-900 px-4 py-4 shadow-lg shadow-black/40">
-              {/* glows suaves */}
               <div className="pointer-events-none absolute -right-10 -top-14 h-24 w-24 rounded-full bg-cyan-500/20 blur-3xl" />
               <div className="pointer-events-none absolute -left-10 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-2xl" />
 
-              {/* Header colapsable */}
               <button
                 type="button"
                 onClick={() => setIsToolOpen((p) => !p)}
                 className="relative z-10 w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-400"
               >
-                <div className="flex items-center gap-2">
-                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-slate-900/60 border border-cyan-400/40">
-                    <Hammer size={11} className="text-cyan-300 -rotate-12" />
-                  </div>
-                  <span>Today&apos;s tool</span>
-                </div>
+                        <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 flex items-center justify-center rounded-full bg-slate-900/60 border border-cyan-400/40">
+                            <Wrench size={11} className="text-cyan-300 -rotate-12" />
+                        </div>
+                        <span>Today&apos;s tool</span>
+                        </div>
 
-                {isToolOpen ? (
-                  <ChevronUp size={14} className="text-slate-400" />
-                ) : (
-                  <ChevronDown size={14} className="text-slate-400" />
-                )}
-              </button>
+                        {isToolOpen ? (
+                        <ChevronUp size={14} className="text-slate-400" />
+                        ) : (
+                        <ChevronDown size={14} className="text-slate-400" />
+                        )}
+                    </button>
 
-              {/* Contenido */}
-              {isToolOpen && (
+                    {isToolOpen && (
                 <motion.div
                   key="tool-content"
                   initial={{ opacity: 0, y: -6 }}
@@ -238,7 +222,6 @@ export default function ToolsPage() {
                     One tiny action to shift the whole day.
                   </p>
 
-                  {/* estados del hook: loading / error / ok */}
                   {toolLoading ? (
                     <p className="text-[11px] text-slate-500 italic">
                       Loading today&apos;s tool…
@@ -248,8 +231,7 @@ export default function ToolsPage() {
                       Couldn&apos;t load today&apos;s tool.
                     </p>
                   ) : (
-                    <>
-                      {/* título de la tool */}
+                    <>|
                       <p
                         className={`text-sm leading-snug font-medium ${
                           toolDone ? "text-cyan-200" : "text-slate-200"
@@ -258,28 +240,19 @@ export default function ToolsPage() {
                         {todaysToolTitle}
                       </p>
 
-                      {/* tagline opcional */}
                       {todaysToolTagline && (
-                        <p className="text-[11px] text-slate-400">
-                          {todaysToolTagline}
-                        </p>
+                        <p className="text-[11px] text-slate-400">{todaysToolTagline}</p>
                       )}
 
-                      {/* botón I did this con animación */}
                       <div className="flex justify-end pt-1">
                         <motion.button
                           type="button"
                           onClick={handleToggleToolDone}
                           whileTap={{ scale: 0.94 }}
                           animate={toolDone ? { scale: 1.03 } : { scale: 1 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 260,
-                            damping: 18,
-                          }}
+                          transition={{ type: "spring", stiffness: 260, damping: 18 }}
                           className="relative inline-flex items-center"
                         >
-                          {/* glow que aparece solo cuando está done */}
                           <AnimatePresence>
                             {toolDone && (
                               <motion.span
@@ -300,22 +273,18 @@ export default function ToolsPage() {
                                   : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
                               }`}
                           >
-                            <span className="text-[11px]">
-                              {toolDone ? "✓" : "○"}
-                            </span>
+                            <span className="text-[11px]">{toolDone ? "✓" : "○"}</span>
                             <span>{toolDone ? "Done for today" : "I did this"}</span>
                           </span>
                         </motion.button>
                       </div>
 
-                      {/* punchline SOLO cuando está done */}
                       {toolDone && toolDoneLine && (
                         <p className="text-[11px] text-cyan-300 italic pt-2 border-l border-cyan-400/30 pl-2">
                           {toolDoneLine}
                         </p>
                       )}
 
-                      {/* link al modal guiado */}
                       {!toolDone && todaysTool && (
                         <div className="flex justify-end pt-1">
                           <button
@@ -349,13 +318,14 @@ export default function ToolsPage() {
             </div>
 
             {sectionsLoading ? (
-              <p className="text-[11px] text-slate-500 italic">
-                Loading toolbox…
-              </p>
+              <p className="text-[11px] text-slate-500 italic">Loading toolbox…</p>
+            ) : sectionsError ? (
+              <div className="rounded-2xl border border-rose-900/40 bg-rose-950/20 px-4 py-3">
+                <p className="text-sm text-rose-300">Couldn’t load toolbox.</p>
+                <p className="text-[11px] text-rose-200/70 mt-1">{sectionsError}</p>
+              </div>
             ) : sections.length === 0 ? (
-              <p className="text-[11px] text-slate-500">
-                No toolbox sections yet.
-              </p>
+              <p className="text-[11px] text-slate-500">No toolbox sections yet.</p>
             ) : (
               <div className="grid grid-cols-1 gap-3">
                 {sections.map((row) => {
