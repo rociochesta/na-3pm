@@ -46,7 +46,88 @@ export default function ToolsPage() {
   const [sections, setSections] = useState([]);
   const [sectionsLoading, setSectionsLoading] = useState(true);
   const [sectionsError, setSectionsError] = useState(""); // ✅ faltaba
+// ─────────────────────────────────────────────
+// Load TOOLS welcome message from Netlify
+// ─────────────────────────────────────────────
+useEffect(() => {
+  const loadToolsWelcome = async () => {
+    try {
+      // raw_3pm | soft_3pm | null
+      const variant = "raw_3pm";
 
+      const res = await fetch(
+        `/.netlify/functions/get-tools-welcome?variant=${variant}`
+      );
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+
+      setToolsWelcomeHeadline(
+        data?.headline ||
+          "Tools for when your brain is loud and patience is gone."
+      );
+      setToolsWelcomeSubline(
+        data?.subline ||
+          "Nothing here will fix everything. That’s not the job."
+      );
+    } catch (err) {
+      console.error("Failed to load tools welcome:", err);
+
+      // fallback seguro 3PM
+      setToolsWelcomeHeadline(
+        "You don’t need motivation. You need traction."
+      );
+      setToolsWelcomeSubline(
+        "Pick one thing. Let the rest wait."
+      );
+    }
+  };
+
+  loadToolsWelcome();
+}, []);
+
+
+  // ─────────────────────────────────────────────
+// Load TOOLS welcome message from Netlify
+// ─────────────────────────────────────────────
+useEffect(() => {
+  const loadToolsWelcome = async () => {
+    try {
+      // raw_3pm | soft_3pm | null
+      const variant = "raw_3pm";
+
+      const res = await fetch(
+        `/.netlify/functions/get-tools-welcome?variant=${variant}`
+      );
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+
+      setToolsWelcomeHeadline(
+        data?.headline ||
+          "Tools for when your brain is loud and patience is gone."
+      );
+      setToolsWelcomeSubline(
+        data?.subline ||
+          "Nothing here will fix everything. That’s not the job."
+      );
+    } catch (err) {
+      console.error("Failed to load tools welcome:", err);
+
+      // fallback seguro 3PM
+      setToolsWelcomeHeadline(
+        "You don’t need motivation. You need traction."
+      );
+      setToolsWelcomeSubline(
+        "Pick one thing. Let the rest wait."
+      );
+    }
+  };
+
+  loadToolsWelcome();
+}, []);
   // ✅ recargar secciones cada vez que vuelves a /tools
   useEffect(() => {
     let ignore = false;
@@ -166,6 +247,25 @@ export default function ToolsPage() {
 
       <main className="flex-1">
         <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+          {/* Hero compacto */}
+        <section className="rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-3 flex items-start gap-3">
+  <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/60">
+    <Hammer size={18} className="text-cyan-300" />
+  </div>
+
+  <div className="space-y-1">
+    <h2 className="text-sm font-semibold leading-snug">
+      {toolsWelcomeHeadline}
+    </h2>
+
+    {toolsWelcomeSubline && (
+      <p className="text-[12px] text-slate-300 leading-snug">
+        {toolsWelcomeSubline}
+      </p>
+    )}
+  </div>
+</section>
+
       {/* HERO / INTRO — Option C (almost invisible, premium) */}
 <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/40 px-4 py-3 shadow-lg shadow-black/30">
   {/* ultra-soft glow (barely there) */}
