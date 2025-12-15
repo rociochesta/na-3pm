@@ -16,18 +16,19 @@ export const handler = async (event) => {
     // opcional: ?variant=raw_3pm | soft_3pm
     const variant = event.queryStringParameters?.variant?.trim() || null;
 
-    const result = await pool.query(
-      `
-      SELECT id, headline, subline
-      FROM tools_welcome_messages
-      WHERE group_id = $1
-        AND is_active = true
-        AND ($2::text IS NULL OR variant = $2)
-      ORDER BY RANDOM()
-      LIMIT 1;
-      `,
-      [groupId, variant]
-    );
+const result = await pool.query(
+  `
+  SELECT headline, subline
+  FROM tools_welcome_messages
+  WHERE group_id = $1
+    AND is_active = true
+    AND variant = $2::welcome_variant
+  ORDER BY sort_order ASC, random()
+  LIMIT 1;
+  `,
+  [groupId, variant]
+);
+
 
     if (result.rowCount === 0) {
       return {
