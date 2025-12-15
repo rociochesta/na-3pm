@@ -99,13 +99,14 @@ useEffect(() => {
     }
   }
 
-  function goNext() {
-    if (stepNum >= 4) {
-      navigate(`/tools/${sectionId}/${toolSlug}`);
-    } else {
-      navigate(`/tools/${sectionId}/${toolSlug}/${stepNum + 1}`);
-    }
+function goNext() {
+  if (stepNum >= 4) {
+    navigate(`/tools/${sectionId}/${toolSlug}`, { state: { fromFinish: true } });
+  } else {
+    navigate(`/tools/${sectionId}/${toolSlug}/${stepNum + 1}`);
   }
+}
+
 
  const canContinue = value.trim().length > 0;
 

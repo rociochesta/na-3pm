@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header3PM from "../components/Header3PM.jsx";
 import BottomNav from "../components/BottomNav.jsx";
+import { useLocation } from "react-router-dom";
+
 
 function storageKey(sectionId, toolSlug) {
   return `na_toolrun_${sectionId}_${toolSlug}`;
@@ -68,6 +70,15 @@ export default function ToolRunnerPage() {
   const [error, setError] = useState("");
 
   const [resultKey, setResultKey] = useState(null);
+  const location = useLocation();
+
+useEffect(() => {
+  if (toolSlug !== "reality-check") return;
+  if (!location.state?.fromFinish) return;
+  runResult();
+  // opcional: limpia el state para que no se re-dispare
+  window.history.replaceState({}, document.title);
+}, [toolSlug, location.state]);
 
   // ✅ 1) cargar tool metadata
   useEffect(() => {
@@ -102,11 +113,7 @@ export default function ToolRunnerPage() {
   }, [sectionId, toolSlug]);
 
   // ✅ 2) al ENTRAR al runner de reality-check => borrar draft + resultado
-  useEffect(() => {
-    if (toolSlug !== "reality-check") return;
-    clearDraft(sectionId, toolSlug);
-    setResultKey(null);
-  }, [sectionId, toolSlug]);
+
 
   function runResult() {
     const draft = readDraft(sectionId, toolSlug);
