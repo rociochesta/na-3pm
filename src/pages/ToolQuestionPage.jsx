@@ -79,14 +79,17 @@ export default function ToolQuestionPage() {
 
   const [value, setValue] = useState("");
 
-  useEffect(() => {
-    const draft = readDraft(sectionId, toolSlug);
-    setValue(typeof draft[q.key] === "string" ? draft[q.key] : "");
-  }, [sectionId, toolSlug, q.key]);
+useEffect(() => {
+  if (!sectionId || !toolSlug) return;
+  const draft = readDraft(sectionId, toolSlug);
+  setValue(typeof draft[q.key] === "string" ? draft[q.key] : "");
+}, [sectionId, toolSlug, q.key]);
 
-  useEffect(() => {
-    writeDraft(sectionId, toolSlug, { [q.key]: value });
-  }, [sectionId, toolSlug, q.key, value]);
+useEffect(() => {
+  if (!sectionId || !toolSlug) return;
+  writeDraft(sectionId, toolSlug, { [q.key]: value });
+}, [sectionId, toolSlug, q.key, value]);
+
 
   function goBack() {
     if (stepNum <= 1) {
