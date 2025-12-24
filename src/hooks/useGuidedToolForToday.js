@@ -1,11 +1,10 @@
-// src/hooks/useGuidedToolForToday.js
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function pickIndex(tools, daysClean) {
   if (!tools || tools.length === 0) return null;
 
-  // Si tenemos días limpios, usamos eso como “seed”
-  if (typeof daysClean === "number" && !Number.isNaN(daysClean)) {
+  // Si tenemos días limpios, usamos eso como seed determinista
+  if (typeof daysClean === "number" && Number.isFinite(daysClean)) {
     return daysClean % tools.length;
   }
 
@@ -19,34 +18,63 @@ function pickIndex(tools, daysClean) {
   return seed % tools.length;
 }
 
+async function fetchWithDebug(url, options) {
+  const res = await fetch(url, options);
+  const text = await res.text(); // 👈 SIEMPRE leemos texto primero
+
+  if (!res.ok) {
+    const snippet = (text || "").slice(0, 400);
+    throw new Error(`HTTP ${res.status} ${res.statusText} — ${snippet || "no body"}`);
+  }
+
+  // Intentamos parsear JSON desde el texto
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    // Si vino HTML o algo raro
+    throw new Error(
+      `Invalid JSON from ${url} — ${String(e?.message || e)} — body: ${(text || "").slice(0, 200)}`
+    );
+  }
+}
+
 export function useGuidedToolForToday({ hasSoberDate, daysClean }) {
   const [tool, setTool] = useState(null);
   const [allTools, setAllTools] = useState([]);
   const [index, setIndex] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Normaliza daysClean a number (o null)
+  const days = useMemo(() => {
+    const n = Number(daysClean);
+    return Number.isFinite(n) ? n : null;
+  }, [daysClean]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
+      // ✅ Si aún no corresponde (no soberDate/days), no es error.
+      // Evita el "Couldn't load" falso.
+      if (!hasSoberDate || days === null) {
+        setTool(null);
+        setAllTools([]);
+        setIndex(null);
+        setLoading(false);
+        setError(null);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
       try {
-        const res = await fetch("/.netlify/functions/get-guided-tools", {
+        const json = await fetchWithDebug("/.netlify/functions/get-guided-tools", {
           method: "GET",
         });
 
-        if (!res.ok) {
-          const txt = await res.text();
-          throw new Error(
-            `get-guided-tools failed: ${res.status} – ${txt || "no body"}`
-          );
-        }
-
-        const json = await res.json();
-        const tools = Array.isArray(json.tools) ? json.tools : [];
+        const tools = Array.isArray(json?.tools) ? json.tools : [];
 
         if (cancelled) return;
 
@@ -59,37 +87,30 @@ export function useGuidedToolForToday({ hasSoberDate, daysClean }) {
           return;
         }
 
-        // Filtrar por min/max días si tenemos soberDate
+        // Filtrar por min/max días (solo si tenemos soberDate y days)
         const eligible = tools.filter((t) => {
-          if (!hasSoberDate || daysClean == null) return true;
+          const min = t?.minDays ?? null;
+          const max = t?.maxDays ?? null;
 
-          const min = t.minDays ?? null;
-          const max = t.maxDays ?? null;
-
-          if (min != null && daysClean < min) return false;
-          if (max != null && daysClean > max) return false;
+          if (min != null && days < min) return false;
+          if (max != null && days > max) return false;
           return true;
         });
 
         const list = eligible.length > 0 ? eligible : tools;
-/*
-        const idx = pickIndex(list, daysClean);
+
+        // ✅ Revertimos el random de prueba:
+        // 1 tool por día, determinista
+        const idx = pickIndex(list, days);
         const chosen = idx != null ? list[idx] : null;
 
         setIndex(idx);
         setTool(chosen);
-        */
-       // Versión de prueba: elige una herramienta aleatoria cada vez
-const randomIndex = Math.floor(Math.random() * list.length);
-const randomTool = list[randomIndex];
-
-setIndex(randomIndex);
-setTool(randomTool);
         setLoading(false);
       } catch (err) {
         console.error("useGuidedToolForToday error:", err);
         if (!cancelled) {
-          setError(err.message || "Could not load tools");
+          setError(err instanceof Error ? err : new Error(String(err)));
           setLoading(false);
         }
       }
@@ -100,13 +121,13 @@ setTool(randomTool);
     return () => {
       cancelled = true;
     };
-  }, [hasSoberDate, daysClean]);
+  }, [hasSoberDate, days]);
 
   return {
     tool,
     allTools,
     index,
     loading,
-    error,
+    error, // 👈 Error object (o null)
   };
 }
