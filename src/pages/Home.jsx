@@ -45,7 +45,6 @@ const ICONS = {
   king: ChessKing,
   medal: Medal,
 };
-
 import BottomNav from "../components/BottomNav";
 import { AnimatePresence } from "framer-motion";
 import { getTimeUntilMeeting } from "../utils/getTimeUntilMeeting.js";
@@ -94,7 +93,7 @@ export default function Home() {
   // 🔹 mensajes de bienvenida rotativos desde Supabase
   const [welcomeHeadline, setWelcomeHeadline] = useState("Welcome back.");
   const [welcomeSubline, setWelcomeSubline] = useState("");
-  const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
+const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
 
   // ─────────────────────────────────────────────
   // Cargar welcome message desde Netlify function
@@ -221,11 +220,6 @@ export default function Home() {
     error: toolError,
   } = useGuidedToolForToday({ hasSoberDate, daysClean });
 
-  // ✅ DEBUG (cambio): que no sea silencioso
-  useEffect(() => {
-    if (toolError) console.warn("TodayTool error:", toolError);
-  }, [toolError]);
-
   const todaysToolTitle =
     todaysTool?.title ||
     (toolLoading ? "Today's tool is loading..." : "No tool available today");
@@ -251,16 +245,17 @@ export default function Home() {
       cancelled = true;
     };
   }, [reachedMilestones]);
+useEffect(() => {
+  function update() {
+    setTimeUntilMeeting(getTimeUntilMeeting());
+  }
 
-  useEffect(() => {
-    function update() {
-      setTimeUntilMeeting(getTimeUntilMeeting());
-    }
+  update(); // primera vez
+  const id = setInterval(update, 30 * 1000); // cada 30s
+  return () => clearInterval(id);
+}, []);
 
-    update(); // primera vez
-    const id = setInterval(update, 30 * 1000); // cada 30s
-    return () => clearInterval(id);
-  }, []);
+
 
   // Fecha bonita “Since Nov 23, 2025”
   const cleanDateLabel =
@@ -395,350 +390,354 @@ export default function Home() {
       {/* Main content */}
       <main className="flex-1">
         <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-          {/* Hero compacto */}
-          <section className="rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-3 flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/60">
-              <Sparkles size={18} className="text-cyan-300" />
-            </div>
+          {/* Hero premium con welcome rotativo */}
+{/* Hero compacto */}
+<section className="rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-3 flex items-start gap-3">
+  <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/80 border border-cyan-400/60">
+    <Sparkles size={18} className="text-cyan-300" />
+  </div>
 
-            <div className="space-y-1">
-              <h2 className="text-sm font-semibold leading-snug">
-                {welcomeHeadline}
-              </h2>
+  <div className="space-y-1">
+    <h2 className="text-sm font-semibold leading-snug">
+      {welcomeHeadline}
+    </h2>
 
-              {welcomeSubline && (
-                <p className="text-[12px] text-slate-300 leading-snug">
-                  {welcomeSubline}
-                </p>
-              )}
+    {welcomeSubline && (
+      <p className="text-[12px] text-slate-300 leading-snug">
+        {welcomeSubline}
+      </p>
+    )}
 
-              {userProfile?.name && (
-                <p className="text-[11px] text-slate-500">
-                  Hi {userProfile.name}. However yesterday went, you still made
-                  it here.
-                </p>
-              )}
-            </div>
-          </section>
+    {userProfile?.name && (
+      <p className="text-[11px] text-slate-500">
+        Hi {userProfile.name}. However yesterday went, you still made it here.
+      </p>
+    )}
+  </div>
+</section>
+{/* NEXT MEETING — premium block */}
+<section className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-4 shadow-lg shadow-black/30">
+  <div className="flex items-center justify-between gap-3">
+    {/* Left side: text */}
+    <div className="min-w-0">
+      <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
+        Next meeting
+      </p>
 
-          {/* NEXT MEETING — premium block */}
-          <section className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-4 shadow-lg shadow-black/30">
-            <div className="flex items-center justify-between gap-3">
-              {/* Left side: text */}
-              <div className="min-w-0">
-                <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
-                  Next meeting
-                </p>
+      <p className="text-sm font-medium text-slate-200 mt-1">
+        {timeUntilMeeting}
+      </p>
 
-                <p className="text-sm font-medium text-slate-200 mt-1">
-                  {timeUntilMeeting}
-                </p>
+      <p className="text-[11px] text-slate-400 mt-0.5">
+        3PM Homegroup • Daily
+      </p>
+    </div>
 
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  3PM Homegroup • Daily
-                </p>
-              </div>
-
-              {/* Right side: pill-style button (match app style) */}
-              <a
-                href="https://zoom.us/whatever"
-                target="_blank"
-                rel="noreferrer"
-                className="shrink-0 inline-flex items-center gap-1 rounded-full border border-cyan-400/80 
+    {/* Right side: pill-style button (match app style) */}
+    <a
+      href="https://zoom.us/whatever"
+      target="_blank"
+      rel="noreferrer"
+      className="shrink-0 inline-flex items-center gap-1 rounded-full border border-cyan-400/80 
                  bg-slate-950/70 px-3 py-1.5 text-[11px] font-medium text-cyan-100 
                  hover:bg-cyan-400/10 hover:border-cyan-300 transition-colors"
+    >
+      <Video size={14} className="text-cyan-200" />
+      <span>Join Zoom</span>
+    </a>
+  </div>
+</section>
+
+
+
+
+{/* Badge + status — ahora más premium */}
+{/* Badge + status — ahora más premium */}
+<section>
+  {hasSoberDate ? (
+    <div className="relative">
+      {/* glow fuerte detrás de la badge */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-cyan-500/30 via-sky-400/10 to-purple-500/25 blur-xl opacity-70 pointer-events-none" />
+
+      {/* tarjeta principal */}
+      <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-5 py-5 shadow-xl shadow-black/40">
+        <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-slate-400 mb-1">
+          <span>Clean badge</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/70 border border-slate-700 text-slate-300">
+            {daysClean} day{daysClean === 1 ? "" : "s"} in
+          </span>
+        </div>
+
+        <div className="mt-1 flex items-center gap-3">
+          <div className="flex items-center justify-center">
+            <NeonBadge num={daysClean} />
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+              Days clean
+            </span>
+            <span className="text-[11px] text-slate-300 mt-1">
+              This is how long you&apos;ve been annoying your addiction on purpose.
+            </span>
+            {cleanDateLabel && (
+              <span className="text-[10px] text-slate-500 mt-1">
+                Since {cleanDateLabel}. Your old dealer is bored.
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* pill con days to next milestone (usando el mismo nextMilestone) */}
+        {nextMilestone && (
+          <div className="flex justify-end mt-3">
+            <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-0.5 text-[10px] text-slate-400">
+              Next milestone: {nextMilestone.label}
+              <span className="ml-1 text-slate-500">
+                ({nextMilestone.days - daysClean} day
+                {nextMilestone.days - daysClean === 1 ? "" : "s"} left)
+              </span>
+            </span>
+          </div>
+        )}
+
+        <Link
+          to="/sober-date"
+          className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-cyan-300 underline underline-offset-2 mt-3"
+        >
+          Change date
+        </Link>
+      </div>
+    </div>
+  ) : (
+    <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/80 px-5 py-4 space-y-2">
+      <p className="text-sm text-slate-200">
+        Set your clean date so we can start counting the days you
+        didn&apos;t self-destruct on purpose.
+      </p>
+
+      <Link
+        to="/sober-date"
+        className="inline-flex mt-2 text-xs font-medium text-cyan-300 hover:text-cyan-200 underline underline-offset-4"
+      >
+        Set clean date
+      </Link>
+    </div>
+  )}
+</section>
+
+
+{/* TODAY'S TOOL — versión premium con micro-animación */}
+<section>
+<div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-950 to-slate-900 px-4 py-4 shadow-lg shadow-black/40">
+
+    {/* glows suaves */}
+    <div className="pointer-events-none absolute -right-10 -top-14 h-24 w-24 rounded-full bg-cyan-500/20 blur-3xl" />
+    <div className="pointer-events-none absolute -left-10 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-2xl" />
+
+    {/* Header colapsable */}
+    <button
+      type="button"
+      onClick={() => setIsToolOpen((p) => !p)}
+      className="relative z-10 w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-400"
+    >
+      <div className="flex items-center gap-2">
+        <div className="h-5 w-5 flex items-center justify-center rounded-full bg-slate-900/60 border border-cyan-400/40">
+          <Wrench size={11} className="text-cyan-300" />
+        </div>
+        <span>Today&apos;s tool</span>
+      </div>
+
+      {isToolOpen ? (
+        <ChevronUp size={14} className="text-slate-400" />
+      ) : (
+        <ChevronDown size={14} className="text-slate-400" />
+      )}
+    </button>
+
+    {/* Contenido */}
+    {isToolOpen && (
+      <motion.div
+        key="tool-content"
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.22 }}
+        className="relative z-10 space-y-3 pt-3"
+      >
+        <p className="text-[11px] text-slate-400">
+          One tiny action to shift the whole day.
+        </p>
+
+        {/* estados del hook: loading / error / ok */}
+        {toolLoading ? (
+          <p className="text-[11px] text-slate-500 italic">
+            Loading today&apos;s tool…
+          </p>
+        ) : toolError ? (
+          <p className="text-[11px] text-rose-400">
+            Couldn&apos;t load today&apos;s tool.
+          </p>
+        ) : (
+          <>
+            {/* título de la tool */}
+            <p
+              className={`text-sm leading-snug font-medium ${
+                toolDone ? "text-cyan-200" : "text-slate-200"
+              }`}
+            >
+              {todaysToolTitle}
+            </p>
+
+            {/* botón I did this con animación */}
+            <div className="flex justify-end pt-1">
+              <motion.button
+                type="button"
+                onClick={handleToggleToolDone}
+                whileTap={{ scale: 0.94 }}
+                animate={toolDone ? { scale: 1.03 } : { scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 18 }}
+                className="relative inline-flex items-center"
               >
-                <Video size={14} className="text-cyan-200" />
-                <span>Join Zoom</span>
-              </a>
-            </div>
-          </section>
-
-          {/* Badge + status — ahora más premium */}
-          <section>
-            {hasSoberDate ? (
-              <div className="relative">
-                {/* glow fuerte detrás de la badge */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-cyan-500/30 via-sky-400/10 to-purple-500/25 blur-xl opacity-70 pointer-events-none" />
-
-                {/* tarjeta principal */}
-                <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-5 py-5 shadow-xl shadow-black/40">
-                  <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-slate-400 mb-1">
-                    <span>Clean badge</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/70 border border-slate-700 text-slate-300">
-                      {daysClean} day{daysClean === 1 ? "" : "s"} in
-                    </span>
-                  </div>
-
-                  <div className="mt-1 flex items-center gap-3">
-                    <div className="flex items-center justify-center">
-                      <NeonBadge num={daysClean} />
-                    </div>
-
-                    <div className="flex flex-col">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
-                        Days clean
-                      </span>
-                      <span className="text-[11px] text-slate-300 mt-1">
-                        This is how long you&apos;ve been annoying your addiction
-                        on purpose.
-                      </span>
-                      {cleanDateLabel && (
-                        <span className="text-[10px] text-slate-500 mt-1">
-                          Since {cleanDateLabel}. Your old dealer is bored.
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* pill con days to next milestone */}
-                  {nextMilestone && (
-                    <div className="flex justify-end mt-3">
-                      <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-0.5 text-[10px] text-slate-400">
-                        Next milestone: {nextMilestone.label}
-                        <span className="ml-1 text-slate-500">
-                          ({nextMilestone.days - daysClean} day
-                          {nextMilestone.days - daysClean === 1 ? "" : "s"} left)
-                        </span>
-                      </span>
-                    </div>
+                {/* glow que aparece solo cuando está done */}
+                <AnimatePresence>
+                  {toolDone && (
+                    <motion.span
+                      key="tool-glow"
+                      initial={{ opacity: 0, scale: 0.6 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.6 }}
+                      className="absolute inset-0 rounded-full bg-cyan-400/25 blur-sm"
+                    />
                   )}
+                </AnimatePresence>
 
-                  <Link
-                    to="/sober-date"
-                    className="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-cyan-300 underline underline-offset-2 mt-3"
-                  >
-                    Change date
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/80 px-5 py-4 space-y-2">
-                <p className="text-sm text-slate-200">
-                  Set your clean date so we can start counting the days you
-                  didn&apos;t self-destruct on purpose.
-                </p>
-
-                <Link
-                  to="/sober-date"
-                  className="inline-flex mt-2 text-xs font-medium text-cyan-300 hover:text-cyan-200 underline underline-offset-4"
+                <span
+                  className={`relative inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[10px] font-medium transition-colors
+                    ${
+                      toolDone
+                        ? "border-cyan-400 bg-cyan-400/10 text-cyan-100"
+                        : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
+                    }`}
                 >
-                  Set clean date
-                </Link>
+                  <span className="text-[11px]">
+                    {toolDone ? "✓" : "○"}
+                  </span>
+                  <span>{toolDone ? "Done for today" : "I did this"}</span>
+                </span>
+              </motion.button>
+            </div>
+
+            {/* punchline SOLO cuando está done */}
+            {toolDone && toolDoneLine && (
+              <p className="text-[11px] text-cyan-300 italic pt-2 border-l border-cyan-400/30 pl-2">
+                {toolDoneLine}
+              </p>
+            )}
+
+            {/* link al modal guiado */}
+            {!toolDone && todaysTool && (
+              <div className="flex justify-end pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsToolGuideOpen(true)}
+                  className="inline-flex items-center gap-1 text-[10px] text-slate-400 underline underline-offset-2 hover:text-cyan-300"
+                >
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-600 text-[9px]">
+                    ?
+                  </span>
+                  <span>How do I do this?</span>
+                </button>
               </div>
             )}
-          </section>
+          </>
+        )}
+      </motion.div>
+    )}
+  </div>
+</section>
 
-          {/* TODAY'S TOOL */}
-          <section>
-            <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-950 to-slate-900 px-4 py-4 shadow-lg shadow-black/40">
-              {/* glows suaves */}
-              <div className="pointer-events-none absolute -right-10 -top-14 h-24 w-24 rounded-full bg-cyan-500/20 blur-3xl" />
-              <div className="pointer-events-none absolute -left-10 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-2xl" />
 
-              {/* Header colapsable */}
-              <button
-                type="button"
-                onClick={() => setIsToolOpen((p) => !p)}
-                className="relative z-10 w-full flex items-center justify-between text-xs uppercase tracking-[0.16em] text-slate-400"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="h-5 w-5 flex items-center justify-center rounded-full bg-slate-900/60 border border-cyan-400/40">
-                    <Wrench size={11} className="text-cyan-300" />
-                  </div>
-                  <span>Today&apos;s tool</span>
-                </div>
+        
 
-                {isToolOpen ? (
-                  <ChevronUp size={14} className="text-slate-400" />
-                ) : (
-                  <ChevronDown size={14} className="text-slate-400" />
-                )}
-              </button>
+        {/* JFT – Premium teaser (sin CTA) */}
+{/* JFT – Premium teaser con fecha + link suave */}
+<section className="pt-2">
+  <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 to-slate-900 px-4 py-4 shadow-lg shadow-black/30">
 
-              {/* Contenido */}
-              {isToolOpen && (
-                <motion.div
-                  key="tool-content"
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.22 }}
-                  className="relative z-10 space-y-3 pt-3"
-                >
-                  <p className="text-[11px] text-slate-400">
-                    One tiny action to shift the whole day.
-                  </p>
+    {/* Glows decorativos */}
+    <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-cyan-500/20 blur-2xl" />
+    <div className="pointer-events-none absolute -left-8 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-xl" />
 
-                  {/* estados del hook: loading / error / ok */}
-                  {toolLoading ? (
-                    <p className="text-[11px] text-slate-500 italic">
-                      Loading today&apos;s tool…
-                    </p>
-                  ) : toolError ? (
-                    // ✅ CAMBIO: mostrar mensaje real del error
-                    <div className="space-y-1">
-                      <p className="text-[11px] text-rose-400">
-                        Couldn&apos;t load today&apos;s tool.
-                      </p>
-                      <p className="text-[10px] text-slate-500 break-words">
-                        {String(toolError?.message || toolError)}
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      {/* título de la tool */}
-                      <p
-                        className={`text-sm leading-snug font-medium ${
-                          toolDone ? "text-cyan-200" : "text-slate-200"
-                        }`}
-                      >
-                        {todaysToolTitle}
-                      </p>
+    {/* Header con fecha */}
+    <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center gap-2">
+        <BookOpen size={14} className="text-cyan-300" />
+        <span className="text-xs uppercase tracking-[0.16em] text-slate-500">
+          Just for Today
+        </span>
+      </div>
 
-                      {/* botón I did this */}
-                      <div className="flex justify-end pt-1">
-                        <motion.button
-                          type="button"
-                          onClick={handleToggleToolDone}
-                          whileTap={{ scale: 0.94 }}
-                          animate={toolDone ? { scale: 1.03 } : { scale: 1 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 260,
-                            damping: 18,
-                          }}
-                          className="relative inline-flex items-center"
-                        >
-                          {/* glow que aparece solo cuando está done */}
-                          <AnimatePresence>
-                            {toolDone && (
-                              <motion.span
-                                key="tool-glow"
-                                initial={{ opacity: 0, scale: 0.6 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.6 }}
-                                className="absolute inset-0 rounded-full bg-cyan-400/25 blur-sm"
-                              />
-                            )}
-                          </AnimatePresence>
+      {/* pill de fecha solo si hay entrada */}
+      {!jftLoading && !jftError && jftEntry && (
+        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700 text-slate-400">
+          {String(jftEntry.month).padStart(2, "0")}/
+          {String(jftEntry.day).padStart(2, "0")}
+        </span>
+      )}
+    </div>
 
-                          <span
-                            className={`relative inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[10px] font-medium transition-colors
-                              ${
-                                toolDone
-                                  ? "border-cyan-400 bg-cyan-400/10 text-cyan-100"
-                                  : "border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-200"
-                              }`}
-                          >
-                            <span className="text-[11px]">
-                              {toolDone ? "✓" : "○"}
-                            </span>
-                            <span>
-                              {toolDone ? "Done for today" : "I did this"}
-                            </span>
-                          </span>
-                        </motion.button>
-                      </div>
+    {/* Estados de carga / error */}
+    {jftLoading && (
+      <p className="text-[11px] text-slate-500 italic">Loading…</p>
+    )}
 
-                      {/* punchline SOLO cuando está done */}
-                      {toolDone && toolDoneLine && (
-                        <p className="text-[11px] text-cyan-300 italic pt-2 border-l border-cyan-400/30 pl-2">
-                          {toolDoneLine}
-                        </p>
-                      )}
+    {jftError && (
+      <p className="text-[11px] text-rose-300">
+        Couldn&apos;t load today&apos;s meditation.
+      </p>
+    )}
 
-                      {/* link al modal guiado */}
-                      {!toolDone && todaysTool && (
-                        <div className="flex justify-end pt-1">
-                          <button
-                            type="button"
-                            onClick={() => setIsToolGuideOpen(true)}
-                            className="inline-flex items-center gap-1 text-[10px] text-slate-400 underline underline-offset-2 hover:text-cyan-300"
-                          >
-                            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-600 text-[9px]">
-                              ?
-                            </span>
-                            <span>How do I do this?</span>
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </motion.div>
-              )}
-            </div>
-          </section>
+    {/* Contenido cuando sí hay entrada */}
+    {!jftLoading && !jftError && jftEntry && (
+      <>
+        {/* Título del día */}
+        <p className="text-sm font-medium text-slate-200 leading-snug line-clamp-1">
+          {jftEntry.title}
+        </p>
 
-          {/* JFT */}
-          <section className="pt-2">
-            <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-950 to-slate-900 px-4 py-4 shadow-lg shadow-black/30">
-              <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-cyan-500/20 blur-2xl" />
-              <div className="pointer-events-none absolute -left-8 bottom-0 h-20 w-20 rounded-full bg-sky-400/10 blur-xl" />
+        {/* Punchline corta */}
+        {Array.isArray(jftEntry.punchlines) &&
+          jftEntry.punchlines.length > 0 && (
+            <p className="text-[11px] text-cyan-300 italic mt-1 line-clamp-1">
+              “{
+                jftEntry.punchlines[
+                  Math.floor(Math.random() * jftEntry.punchlines.length)
+                ]
+              }”
+            </p>
+          )}
 
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <BookOpen size={14} className="text-cyan-300" />
-                  <span className="text-xs uppercase tracking-[0.16em] text-slate-500">
-                    Just for Today
-                  </span>
-                </div>
+        {/* CTA muy discreto */}
+        <div className="pt-2 flex justify-end">
+          <Link
+            to="/jft" // cámbialo a "/readings" cuando tengas esa página
+            className="text-[10px] text-slate-400 hover:text-cyan-300 underline underline-offset-4"
+          >
+            Read more
+          </Link>
+        </div>
+      </>
+    )}
 
-                {!jftLoading && !jftError && jftEntry && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700 text-slate-400">
-                    {String(jftEntry.month).padStart(2, "0")}/
-                    {String(jftEntry.day).padStart(2, "0")}
-                  </span>
-                )}
-              </div>
+    {/* Sin entrada */}
+    {!jftLoading && !jftError && !jftEntry && (
+      <p className="text-[11px] text-slate-500">No entry for today.</p>
+    )}
+  </div>
+</section>
 
-              {jftLoading && (
-                <p className="text-[11px] text-slate-500 italic">Loading…</p>
-              )}
 
-              {jftError && (
-                <p className="text-[11px] text-rose-300">
-                  Couldn&apos;t load today&apos;s meditation.
-                </p>
-              )}
-
-              {!jftLoading && !jftError && jftEntry && (
-                <>
-                  <p className="text-sm font-medium text-slate-200 leading-snug line-clamp-1">
-                    {jftEntry.title}
-                  </p>
-
-                  {Array.isArray(jftEntry.punchlines) &&
-                    jftEntry.punchlines.length > 0 && (
-                      <p className="text-[11px] text-cyan-300 italic mt-1 line-clamp-1">
-                        “
-                        {
-                          jftEntry.punchlines[
-                            Math.floor(
-                              Math.random() * jftEntry.punchlines.length
-                            )
-                          ]
-                        }
-                        ”
-                      </p>
-                    )}
-
-                  <div className="pt-2 flex justify-end">
-                    <Link
-                      to="/jft"
-                      className="text-[10px] text-slate-400 hover:text-cyan-300 underline underline-offset-4"
-                    >
-                      Read more
-                    </Link>
-                  </div>
-                </>
-              )}
-
-              {!jftLoading && !jftError && !jftEntry && (
-                <p className="text-[11px] text-slate-500">No entry for today.</p>
-              )}
-            </div>
-          </section>
 
           {/* BLOQUES INFERIORES */}
           <section className="space-y-4 pt-2">
@@ -783,7 +782,10 @@ export default function Home() {
                             const isTodayMilestone = m.days === daysClean;
 
                             return (
-                              <li key={m.id} className="flex justify-between">
+                              <li
+                                key={m.id}
+                                className="flex justify-between"
+                              >
                                 <span className="flex items-center gap-1.5">
                                   <MilestoneIcon
                                     milestone={m}
@@ -1164,8 +1166,7 @@ export default function Home() {
           </Link>
         </div>
       </main>
-
-      <BottomNav />
+          <BottomNav />
     </div>
   );
 }
