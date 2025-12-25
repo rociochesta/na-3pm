@@ -21,14 +21,15 @@ export default function Header3PM({ showMenu = true }) {
     // cargar slogan desde DB
    const loadSloganFromDb = async () => {
   try {
-    const groupId = window.localStorage.getItem("na_groupId");
+const groupId = window.localStorage.getItem("na_groupId");
 
-    const url =
-      groupId
-        ? `/.netlify/functions/get-slogan?groupId=${encodeURIComponent(groupId)}`
-        : "/.netlify/functions/get-slogan";
+const url = groupId
+  ? `/.netlify/functions/get-slogan?groupId=${encodeURIComponent(groupId)}`
+  : "/.netlify/functions/get-slogan";
 
-    const res = await fetch(url);
+const res = await fetch(url);
+
+
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();

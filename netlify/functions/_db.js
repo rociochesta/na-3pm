@@ -9,6 +9,7 @@ const connectionString =
   process.env.SUPABASE_DATABASE_URL;
 
 
+  
 
 if (!connectionString) {
   throw new Error("Missing DB connection string (DATABASE_URL).");
