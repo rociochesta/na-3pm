@@ -75,6 +75,8 @@ export default function Home() {
   const [userProfile, setUserProfile] = useState(null);
 
   const [groupMembers, setGroupMembers] = useState([]);
+const memberId = window.localStorage.getItem("na_memberId");
+const isGuest = !memberId;
 
   const [gratitudeStats, setGratitudeStats] = useState({
     thisWeek: 0,
@@ -463,11 +465,12 @@ useEffect(() => {
       </p>
     )}
 
-    {userProfile?.name && (
-      <p className="text-[11px] text-slate-500">
-        Hi {userProfile.name}. However yesterday went, you still made it here.
-      </p>
-    )}
+{isGuest && userProfile?.name && (
+  <p className="text-[11px] text-slate-500">
+    Hi {userProfile.name}. However yesterday went, you still made it here.
+  </p>
+)}
+
   </div>
 </section>
 {/* NEXT MEETING — premium block */}
