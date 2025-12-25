@@ -135,8 +135,9 @@ useEffect(() => {
       console.error("Failed to load welcome message:", err);
 
       // fallback local
-      setWelcomeHeadline("Welcome back. If you relapsed, you still get to be here.");
-      setWelcomeSubline("We don’t grade your days. We just keep you company in them.");
+   setWelcomeHeadline("Welcome back. Still breathing. Still trying.");
+setWelcomeSubline("We don’t grade your days. We just keep you company in them.");
+
     }
   };
 

@@ -1,32 +1,30 @@
+// netlify/functions/get-welcome.js
 import { pool } from "./_db.js";
+
+const isUuid = (v) =>
+  typeof v === "string" &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 
 export const handler = async (event) => {
   if (event.httpMethod !== "GET") {
-    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: "Method not allowed" }),
+    };
   }
 
   try {
-    // puedes pasar groupId por query en el futuro: /get-welcome?groupId=...
-    const groupId = event.queryStringParameters?.groupId || null;
+    const raw = event.queryStringParameters?.groupId;
+    const groupId = isUuid(raw) ? raw : null; // 👈 si es "1" => null
 
     const result = await pool.query(
       `
       SELECT id, headline, subline
       FROM welcome_messages
       WHERE is_active = true
-        AND (
-          ($1::uuid is not null and group_id = $1::uuid)
-          OR
-          ($1::uuid is null and group_id is null)
-          OR
-          (group_id is null)
-        )
+        AND (group_id = $1::uuid OR group_id IS NULL)
       ORDER BY
-        CASE
-          WHEN $1::uuid is not null AND group_id = $1::uuid THEN 0
-          WHEN group_id is null THEN 1
-          ELSE 2
-        END,
+        CASE WHEN group_id = $1::uuid THEN 0 ELSE 1 END,
         RANDOM()
       LIMIT 1;
       `,
@@ -44,7 +42,10 @@ export const handler = async (event) => {
     }
 
     const row = result.rows[0];
-    return { statusCode: 200, body: JSON.stringify({ headline: row.headline, subline: row.subline }) };
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ headline: row.headline, subline: row.subline }),
+    };
   } catch (err) {
     console.error("💥 get-welcome error:", err);
     return {
