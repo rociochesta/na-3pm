@@ -8,6 +8,13 @@ export const handler = async (event) => {
 
   try {
     const groupId = event.queryStringParameters?.groupId || null;
+    console.log("get-slogan hit", {
+  method: event.httpMethod,
+  rawQS: event.queryStringParameters,
+  groupId: event.queryStringParameters?.groupId,
+  hasDbUrl: Boolean(process.env.DATABASE_URL),
+});
+
 
     const result = await pool.query(
       `
@@ -45,14 +52,16 @@ export const handler = async (event) => {
       statusCode: 200,
       body: JSON.stringify({ text: result.rows[0].text }),
     };
-  } catch (err) {
-    console.error("💥 get-slogan error:", err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: "Internal server error",
-        detail: err.message,
-      }),
-    };
-  }
+} catch (err) {
+  console.error("💥 get-slogan error FULL:", err);
+  return {
+    statusCode: 500,
+    body: JSON.stringify({
+      error: "Internal server error",
+      detail: err?.message,
+      stack: err?.stack,
+      code: err?.code,
+    }),
+  };
+}
 };

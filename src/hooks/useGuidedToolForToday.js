@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 function pickIndex(tools, daysClean) {
   if (!tools || tools.length === 0) return null;
 
-  // Si tenemos días limpios, usamos eso como “seed”
   if (typeof daysClean === "number" && !Number.isNaN(daysClean)) {
     return daysClean % tools.length;
   }
 
-  // Fallback: seed por fecha (AAAA MM DD → número)
   const today = new Date();
   const seed =
     today.getFullYear() * 10000 +
@@ -59,12 +57,12 @@ export function useGuidedToolForToday({ hasSoberDate, daysClean }) {
           return;
         }
 
-        // Filtrar por min/max días si tenemos soberDate
         const eligible = tools.filter((t) => {
           if (!hasSoberDate || daysClean == null) return true;
 
-          const min = t.minDays ?? null;
-          const max = t.maxDays ?? null;
+          // soporta ambos formatos por si acaso
+          const min = t.minDays ?? t.min_days ?? null;
+          const max = t.maxDays ?? t.max_days ?? null;
 
           if (min != null && daysClean < min) return false;
           if (max != null && daysClean > max) return false;
@@ -72,19 +70,12 @@ export function useGuidedToolForToday({ hasSoberDate, daysClean }) {
         });
 
         const list = eligible.length > 0 ? eligible : tools;
-/*
+
         const idx = pickIndex(list, daysClean);
         const chosen = idx != null ? list[idx] : null;
 
         setIndex(idx);
         setTool(chosen);
-        */
-       // Versión de prueba: elige una herramienta aleatoria cada vez
-const randomIndex = Math.floor(Math.random() * list.length);
-const randomTool = list[randomIndex];
-
-setIndex(randomIndex);
-setTool(randomTool);
         setLoading(false);
       } catch (err) {
         console.error("useGuidedToolForToday error:", err);
@@ -96,17 +87,10 @@ setTool(randomTool);
     }
 
     load();
-
     return () => {
       cancelled = true;
     };
   }, [hasSoberDate, daysClean]);
 
-  return {
-    tool,
-    allTools,
-    index,
-    loading,
-    error,
-  };
+  return { tool, allTools, index, loading, error };
 }

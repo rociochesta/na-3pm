@@ -119,166 +119,275 @@
   ]
 }
 ,
+{
+  "id": "jft_12_16",
+  "month": 12,
+  "day": 16,
+  "source": "JFT",
+  "title": "Where there's smoke...",
+  "short_summary": "Complacency shows up like smoke: fewer meetings, less contact with newcomers, drifting from your sponsor. Catch it early—stay connected, stay involved, keep recovery close—so a small wisp doesn’t turn into an inferno.",
+  "theme_tags": [
+    "complacency",
+    "maintenance",
+    "meeting attendance",
+    "newcomers",
+    "sponsor",
+    "connection",
+    "early warning signs"
+  ],
+  "punchlines": [
+    "Complacency doesn’t announce itself. It just slowly turns the lights off.",
+    "If your recovery gets quiet, don’t call it peace yet.",
+    "Smoke first. Fire later. Move now.",
+    "Skip enough meetings and your brain will start pitching “normal” again.",
+    "Maintenance isn’t boring. It’s how you don’t burn the house down."
+  ]
+}
+,
+ {
+  "id": "jft_12_17",
+  "month": 12,
+  "day": 17,
+  "source": "JFT",
+  "title": "Service motives",
+  "short_summary": "Service in NA only works when the motive is clear: carrying the message to the addict who still suffers. Ego, recognition, or needing to feel important can quietly poison service. Checking motives—through honesty, reflection, and connection—keeps service welcoming instead of performative.",
+  "theme_tags": [
+    "service",
+    "motives",
+    "ego",
+    "humility",
+    "carrying the message",
+    "self-awareness",
+    "connection"
+  ],
+  "punchlines": [
+    "Service isn’t a stage. It’s a signal fire.",
+    "If I need applause, I’m probably not helping.",
+    "Ego makes noise. Service makes space.",
+    "The message gets lost when the messenger needs credit.",
+    "Check motives early—damage happens quietly."
+  ]
+}
+,
+ {
+  "id": "jft_12_18",
+  "month": 12,
+  "day": 18,
+  "source": "JFT",
+  "title": "The message of our meetings",
+  "short_summary": "Meetings work when the focus stays on recovery—how we got here and how we stay. War stories, debates, and venting can drown the message. If meetings feel empty or frustrating, it may be a signal to look at how we’re sharing. Carrying the message is a choice we make every time we speak.",
+  "theme_tags": [
+    "meetings",
+    "carrying the message",
+    "sharing",
+    "responsibility",
+    "recovery",
+    "focus",
+    "humility"
+  ],
+  "punchlines": [
+    "Stories entertain. Recovery saves lives.",
+    "If I bring the mess, don’t be surprised when the message gets lost.",
+    "Meetings aren’t podcasts about my past.",
+    "What I share either helps someone stay—or gives them an excuse to leave.",
+    "The message works best when it’s not competing with my ego."
+  ]
+}
+,
+{
+  "id": "jft_12_19",
+  "month": 12,
+  "day": 19,
+  "source": "JFT",
+  "title": "Walking the Way I Talk",
+  "short_summary": "In recovery, words are cheap. I can sound spiritual, quote principles, and still live like nothing changed. I can talk a good program and practice a very different one at home. The real work starts when there’s no meeting, no audience, and no one to impress. Integrity isn’t how wise I sound — it’s what I do when convenience and principles collide. If my life doesn’t match my message, I’m not carrying recovery. I’m just doing spiritual cosplay.",
+  "theme_tags": ["integrity", "action", "principles", "authenticity", "self-honesty"],
+  "punchlines": [
+    "My recovery isn’t my vocabulary — it’s my behavior.",
+    "Principles don’t need witnesses. My ego does.",
+    "Quoting the program without living it is just spiritual karaoke."
+  ]
+}
+
+,
   {
-    "id": "jft_12_16",
-    "month": 12,
-    "day": 16,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_20",
+  "month": 12,
+  "day": 20,
+  "source": "JFT",
+  "title": "Overcoming Self-Obsession",
+  "short_summary": "I didn’t stop being self-centered when I stopped using — I just got cleaner about it. I still walk into rooms assuming everyone is watching, judging, or secretly thinking about me. I still want instant attention, immediate reassurance, and emotional customer service on demand. Recovery slowly reveals a brutal truth: the world does not revolve around me, and that’s actually good news. The more I insist on being the center of everything, the more miserable I become. Relief comes when I stop monitoring how I’m being perceived and start paying attention to someone else. Helping others doesn’t make me noble — it makes me sane. Giving is how I escape myself.",
+  "theme_tags": ["self-obsession", "ego", "service", "connection", "humility"],
+  "punchlines": [
+    "Turns out the problem wasn’t that people ignored me — it’s that I never stopped watching myself.",
+    "Self-obsession feels like importance, but it behaves like a prison.",
+    "The fastest way out of my head is to show up for someone else."
+  ]
+}
+,
   {
-    "id": "jft_12_17",
-    "month": 12,
-    "day": 17,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_21",
+  "month": 12,
+  "day": 21,
+  "source": "JFT",
+  "title": "Acceptance Before Change",
+  "short_summary": "I live between two lies. One says I’m broken beyond repair, so why bother trying. The other says there’s nothing wrong with me, so why bother changing. Both extremes keep me exactly where I am. Fear tells me I’ll never become who I want to be. Denial tells me I don’t need to become anyone else. Acceptance is the uncomfortable middle ground where I stop running from myself. When I admit I’m powerless and my life has been unmanageable, I puncture the lie that says I don’t need to change. When I believe help is possible, I puncture the lie that says I can’t. Acceptance doesn’t mean liking everything I find — it means telling the truth long enough to become free.",
+  "theme_tags": ["acceptance", "change", "fear", "denial", "honesty"],
+  "punchlines": [
+    "Fear says I’m too broken to change. Denial says I don’t need to. Both are liars.",
+    "Acceptance isn’t giving up — it’s stopping the argument with reality.",
+    "I don’t change because I hate myself. I change because I finally stopped lying."
+  ]
+}
+,
   {
-    "id": "jft_12_18",
-    "month": 12,
-    "day": 18,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_22",
+  "month": 12,
+  "day": 22,
+  "source": "JFT",
+  "title": "A New Way to Live",
+  "short_summary": "The worst part of addiction wasn’t that it might kill me someday — it was that I was already dead while breathing. I moved through life like a ghost, existing without meaning, connection, or responsibility. Recovery didn’t just stop the drugs; it gave me a reason to stay. Working the Steps taught me something radical: I matter, and so do other people. My actions affect lives beyond my own head. Staying alive now requires participation. I maintain this new life by contributing, by showing up, by caring — not perfectly, but consistently. The old life is always waiting, but it only wins if I stop choosing this one.",
+  "theme_tags": ["meaning", "service", "identity", "connection", "responsibility"],
+  "punchlines": [
+    "Addiction didn’t make me reckless — it made me invisible.",
+    "Recovery didn’t give me a life. It taught me how to participate in one.",
+    "I stay alive by staying useful."
+  ]
+}
+,
   {
-    "id": "jft_12_19",
-    "month": 12,
-    "day": 19,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_23",
+  "month": 12,
+  "day": 23,
+  "source": "JFT",
+  "title": "New Ideas (a.k.a. Stop Trusting the Brain That Almost Killed You)",
+  "short_summary": "My old ideas felt familiar, efficient, and comfortable — which should have been the first red flag. When things get hard, my instinct is to go back to what I know, even if what I know nearly destroyed me. Recovery asks me to do something deeply offensive to my ego: try ideas that didn’t come from my own head. Meetings, steps, sponsors, honesty — none of these were my inventions, and that’s exactly why they work. A new life requires new thinking, and new thinking feels wrong at first. That doesn’t mean it’s bad. It means it’s not addiction running the show anymore.",
+  "theme_tags": ["open-mindedness", "change", "ego", "growth", "recovery"],
+  "punchlines": [
+    "My old ideas had great vibes and terrible outcomes.",
+    "If my thinking got me here, maybe it doesn’t get to lead anymore.",
+    "New ideas feel uncomfortable because addiction hates being unemployed."
+  ]
+},
+{
+  "id": "jft_12_24",
+  "month": 12,
+  "day": 24,
+  "source": "JFT",
+  "title": "The Group",
+  "short_summary": "I didn’t stay clean because of willpower or insight. I stayed because I walked into a room full of people who knew exactly what I was and didn’t flinch. The group works because it’s built from shared reality, not advice. I trusted these people because they weren’t pretending — they were living proof that change was possible. The atmosphere of recovery doesn’t happen by accident; it’s created when addicts show up, help out, and stay after the meeting instead of disappearing. When I participate, I don’t just help the group — I anchor myself. Belonging didn’t save my life by magic. It saved my life by keeping me from being alone with my head.",
+  "theme_tags": ["community", "belonging", "service", "connection", "hope"],
+  "punchlines": [
+    "The group didn’t fix me — it kept me from isolating long enough to destroy myself.",
+    "I trusted the message because it came from people who survived it.",
+    "Belonging is relapse prevention with chairs and coffee."
+  ]
+}
+,
   {
-    "id": "jft_12_20",
-    "month": 12,
-    "day": 20,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_25",
+  "month": 12,
+  "day": 25,
+  "source": "JFT",
+  "title": "Anonymity (or: My Ego Doesn’t Need a Name Tag)",
+  "short_summary": "Anonymity isn’t about hiding — it’s about not needing to be the main character. My self-will ran my life for years and called it ‘personality.’ Turns out constantly imposing my ideas on reality wasn’t leadership, it was control disguised as confidence. When I stop insisting that my way is the way, something weird happens: life gets lighter, people feel safer, and I don’t have to manage everything like a failing CEO. Anonymity reminds me that recovery works better when I’m part of something bigger than my name, my opinions, or my need to be right. The less I push, the more things actually move.",
+  "theme_tags": ["ego", "selflessness", "anonymity", "humility", "spiritual_principles"],
+  "punchlines": [
+    "Anonymity is my ego being asked to sit down and shut up — lovingly.",
+    "Turns out the universe doesn’t need my supervision.",
+    "When I stopped running everything, things started working."
+  ]
+}
+,
+ {
+  "id": "jft_12_26",
+  "month": 12,
+  "day": 26,
+  "source": "JFT",
+  "title": "Never-Failing Power (Unlike My Previous Life Choices)",
+  "short_summary": "I used to put all my faith in one thing at a time — a drug, a person, an idea — and call it loyalty. Then it collapsed, every single time. Recovery didn’t magically remove my tendency to depend; it just exposed how dangerous it is when I expect humans to function like gods. Sponsors sleep. People get tired. Relationships wobble. A Power greater than myself doesn’t flake, ghost, or burn out. Trusting something bigger than me isn’t weakness — it’s finally admitting I was never built to run life alone. Fear loses its grip when I stop expecting finite things to be infinite.",
+  "theme_tags": ["faith", "trust", "fear", "higher_power", "letting_go"],
+  "punchlines": [
+    "I kept asking humans to be gods and got disappointed every time.",
+    "My Higher Power doesn’t need sleep or validation.",
+    "Trusting something bigger than me is cheaper than panic."
+  ]
+}
+,
   {
-    "id": "jft_12_21",
-    "month": 12,
-    "day": 21,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_27",
+  "month": 12,
+  "day": 27,
+  "source": "JFT",
+  "title": "Restored to Sanity (In Small, Unimpressive Moments)",
+  "short_summary": "After admitting my insanity, it’s tempting to assume it’s permanent — like I’m clean now but doomed to think sideways forever. But recovery already proved something important: obsession left. If that miracle happened, maybe the rest isn’t impossible either. Sanity doesn’t return all at once; it shows up quietly in choices that don’t look dramatic. Cutting up credit cards. Calling my sponsor instead of my old contacts. Pausing instead of spiraling. These moments don’t feel spiritual — they feel boring, awkward, and inconvenient. And that’s how I know they’re sane. Each small, reasonable decision is evidence that something bigger than me is doing work I couldn’t.",
+  "theme_tags": ["sanity", "faith", "daily_actions", "recovery", "growth"],
+  "punchlines": [
+    "Sanity didn’t arrive with fireworks — it showed up as better decisions.",
+    "My insanity was loud. Recovery is quiet and inconvenient.",
+    "If obsession left, maybe the rest can follow."
+  ]
+}
+,{
+  "id": "jft_12_28",
+  "month": 12,
+  "day": 28,
+  "source": "JFT",
+  "title": "Depression (Not a Moral Failure)",
+  "short_summary": "Depression still shows up in recovery — the difference is I don’t have to disappear with it. When I isolate, my thoughts get heavier and louder, and despair starts negotiating. Recovery asks me to do the opposite of my instinct: show up anyway. Go to the meeting. Text the sponsor. Speak the feeling out loud instead of letting it rot in silence. Depression doesn’t mean I’m failing or broken; it means I’m human with a nervous system that still needs care. Feelings pass, even the heavy ones. I don’t have to fight them — I just have to not let them drive.",
+  "theme_tags": ["mental_health", "acceptance", "connection", "depression", "self-care"],
+  "punchlines": [
+    "Depression isn’t a relapse — isolation is the warm-up.",
+    "I don’t need to fix my feelings. I need witnesses.",
+    "Feelings pass. Silence feeds them."
+  ]
+}
+,
   {
-    "id": "jft_12_22",
-    "month": 12,
-    "day": 22,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_29",
+  "month": 12,
+  "day": 29,
+  "source": "JFT",
+  "title": "Through Other People’s Eyes (Unfortunately)",
+  "short_summary": "At some point, recovery delivers an uncomfortable truth: the version of me in my head is not the version everyone else is dealing with. I’m not as terrible or as impressive as I think — I’m just too close to myself to see clearly. That’s where other addicts come in. Not to attack me, not to fix me, but to reflect me. Sometimes they show me strengths I didn’t know I had. Other times they point at blind spots I’ve been stepping into for years. My first reaction is usually defense — which is often a sign I just touched something real. I don’t have to accept every opinion, but I can’t afford to ignore feedback just because it’s uncomfortable. Seeing myself through others’ eyes doesn’t diminish me. It gives me a clearer map.",
+  "theme_tags": ["self-awareness", "feedback", "humility", "growth", "identity"],
+  "punchlines": [
+    "If feedback hurts, it probably hit something real.",
+    "My blind spots don’t disappear just because I close my eyes.",
+    "Other people aren’t attacking me — they’re rendering reality."
+  ]
+}
+,
   {
-    "id": "jft_12_23",
-    "month": 12,
-    "day": 23,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_30",
+  "month": 12,
+  "day": 30,
+  "source": "JFT",
+  "title": "Wishing Is Not a Recovery Plan",
+  "short_summary": "Recovery can feel painfully slow. Same thoughts, same feelings, same internal arguments — day after day. My brain loves wishing for a shortcut, a breakthrough, a sudden emotional upgrade. But wishing never kept me clean. If it worked, I’d have been cured years ago. What actually changes things is action — uncomfortable, repetitive, unglamorous action — and staying connected to something bigger than my own thinking. The steps work because they force movement, not because they promise comfort. Prayer keeps me grounded when action feels pointless. Together, they keep me from confusing hope with procrastination.",
+  "theme_tags": ["action", "prayer", "discipline", "consistency", "recovery"],
+  "punchlines": [
+    "Wishing didn’t get me clean. Doing did.",
+    "Recovery isn’t slow — my resistance is.",
+    "Action moves my feet. Prayer keeps my head from sabotaging it."
+  ]
+}
+,
   {
-    "id": "jft_12_24",
-    "month": 12,
-    "day": 24,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
-  {
-    "id": "jft_12_25",
-    "month": 12,
-    "day": 25,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
-  {
-    "id": "jft_12_26",
-    "month": 12,
-    "day": 26,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
-  {
-    "id": "jft_12_27",
-    "month": 12,
-    "day": 27,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
-  {
-    "id": "jft_12_28",
-    "month": 12,
-    "day": 28,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
-  {
-    "id": "jft_12_29",
-    "month": 12,
-    "day": 29,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
-  {
-    "id": "jft_12_30",
-    "month": 12,
-    "day": 30,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
-  {
-    "id": "jft_12_31",
-    "month": 12,
-    "day": 31,
-    "source": "JFT",
-    "title": "",
-    "short_summary": "",
-    "theme_tags": [],
-    "punchlines": []
-  },
+  "id": "jft_12_31",
+  "month": 12,
+  "day": 31,
+  "source": "JFT",
+  "title": "Service Is What Keeps This Alive",
+  "short_summary": "At some point in recovery, life stabilizes a little. Not perfect — just functional. The chaos quiets down. The panic loosens its grip. And then the real question shows up: now what? Recovery doesn’t exist so I can sit back and admire my progress. It exists so I can participate. Service isn’t about holding a position or collecting credibility — it’s about staying connected to something bigger than my own head. It shows up in small, unglamorous ways: listening when I’d rather disappear, showing up when no one is clapping, doing my part even when I don’t feel inspired. Service is how recovery survives contact with real life. It keeps me from shrinking back into myself. It reminds me that this works because we pass it on, not because we mastered it.",
+  "theme_tags": ["service", "connection", "purpose", "maintenance", "community"],
+  "punchlines": [
+    "Recovery didn’t save my life so I could sit out the rest of it.",
+    "Service isn’t heroic — it’s maintenance.",
+    "If I want this to keep working, I have to keep showing up."
+  ]
+}
+,
   {
     "id": "jft_01_01",
     "month": 1,
