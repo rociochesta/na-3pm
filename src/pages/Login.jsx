@@ -12,6 +12,22 @@ export default function Login() {
   const [password, setPassword] = useState(""); // not used yet (future group PIN)
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+function handleGuest() {
+  const guestProfile = {
+    name: "Guest",
+    groupCode: null,
+    role: "guest",
+    createdAt: new Date().toISOString(),
+  };
+
+  window.localStorage.setItem("na_userProfile", JSON.stringify(guestProfile));
+  window.localStorage.setItem("na_memberId", "guest");
+  window.localStorage.setItem("na_memberName", "Guest");
+  window.localStorage.setItem("na_groupId", "guest");
+  window.localStorage.setItem("na_groupCode", "guest");
+
+  navigate("/");
+}
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -180,20 +196,30 @@ export default function Login() {
 
                 {error && <p className="text-[11px] text-rose-400 pt-1">{error}</p>}
 
-                <div className="pt-2 space-y-2">
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full inline-flex items-center justify-center rounded-full border border-cyan-400 bg-cyan-500/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100 hover:bg-cyan-500/20 hover:border-cyan-300 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {submitting ? "Saving…" : "Start"}
-                  </button>
+  <div className="pt-2 space-y-3">
+  {/* START */}
+  <button
+    type="submit"
+    disabled={submitting}
+    className="w-full inline-flex items-center justify-center rounded-full border border-cyan-400 bg-cyan-500/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100 hover:bg-cyan-500/20 hover:border-cyan-300 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+  >
+    {submitting ? "Saving…" : "Start"}
+  </button>
 
-                  <p className="text-[10px] text-slate-500 text-center">
-                    No signup, no email. Just a simple profile for your recovery
-                    tools.
-                  </p>
-                </div>
+  {/* GUEST */}
+  <button
+    type="button"
+    onClick={handleGuest}
+    className="w-full inline-flex items-center justify-center rounded-full border border-slate-700 bg-slate-800/40 px-4 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-300 hover:bg-slate-700/50 hover:text-slate-100 transition-colors"
+  >
+    Enter as guest
+  </button>
+
+  <p className="text-[10px] text-slate-500 text-center">
+    No signup, no email. Just a simple profile for your recovery tools.
+  </p>
+</div>
+
               </form>
             </div>
           </section>
