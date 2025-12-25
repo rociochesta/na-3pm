@@ -1,65 +1,44 @@
-// netlify/functions/get-welcome.js
 import { pool } from "./_db.js";
 
 export const handler = async (event) => {
   if (event.httpMethod !== "GET") {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: "Method not allowed" }),
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
   try {
-    // ✅ groupId dinámico (querystring) + fallback a null (global)
-    // En el front: fetch("/.netlify/functions/get-welcome?groupId=" + na_groupId)
-    const groupIdRaw = event.queryStringParameters?.groupId || null;
-    const groupId = groupIdRaw && String(groupIdRaw).trim() ? String(groupIdRaw).trim() : null;
+    const groupId = 1; // o después lo sacas de localStorage vía query param si quieres
 
-    // Helper: trae 1 texto por type, priorizando grupo > global
-    async function pickOne(type) {
-      const result = await pool.query(
-        `
-        select id, text
-        from group_messages
-        where
-          type = $2
-          and is_active = true
-          and (
-            ($1::uuid is not null and group_id = $1::uuid)
-            or group_id is null
-          )
-        order by
-          case when group_id = $1::uuid then 0 else 1 end,
-          (random() * weight) desc,
-          created_at desc
-        limit 1;
-        `,
-        [groupId, type]
-      );
+    const result = await pool.query(
+      `
+      SELECT id, headline, subline
+      FROM welcome_messages
+      WHERE is_active = true
+        AND (group_id = $1 OR group_id IS NULL)
+      ORDER BY
+        CASE WHEN group_id = $1 THEN 0 ELSE 1 END,
+        RANDOM()
+      LIMIT 1;
+      `,
+      [groupId]
+    );
 
-      return result.rowCount ? result.rows[0].text : null;
+    if (result.rowCount === 0) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          headline: "Welcome.",
+          subline: "Apparently the database is taking a smoke break.",
+        }),
+      };
     }
 
-    const headline =
-      (await pickOne("welcome_headline")) ||
-      "Welcome back. If you relapsed, you still get to be here.";
-
-    const subline =
-      (await pickOne("welcome_subline")) ||
-      "We don’t grade your days. We just keep you company in them.";
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ headline, subline }),
-    };
+    const row = result.rows[0];
+    return { statusCode: 200, body: JSON.stringify({ headline: row.headline, subline: row.subline }) };
   } catch (err) {
     console.error("💥 get-welcome error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Internal server error",
-        detail: err.message,
-      }),
+      body: JSON.stringify({ error: "Internal server error", detail: err.message }),
     };
   }
 };
