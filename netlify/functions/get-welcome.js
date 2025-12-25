@@ -1,9 +1,8 @@
 // netlify/functions/get-welcome.js
 import { pool } from "./_db.js";
 
-const isUuid = (v) =>
-  typeof v === "string" &&
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const handler = async (event) => {
   if (event.httpMethod !== "GET") {
@@ -14,15 +13,19 @@ export const handler = async (event) => {
   }
 
   try {
+    // ✅ Netlify-safe: NO uses URL().searchParams acá
     const raw = event.queryStringParameters?.groupId;
-    const groupId = isUuid(raw) ? raw : null; // 👈 si es "1" => null
+    const groupId = raw && UUID_RE.test(raw) ? raw : null;
 
     const result = await pool.query(
       `
       SELECT id, headline, subline
       FROM welcome_messages
       WHERE is_active = true
-        AND (group_id = $1::uuid OR group_id IS NULL)
+        AND (
+          (group_id = $1::uuid)
+          OR (group_id IS NULL)
+        )
       ORDER BY
         CASE WHEN group_id = $1::uuid THEN 0 ELSE 1 END,
         RANDOM()
@@ -50,7 +53,10 @@ export const handler = async (event) => {
     console.error("💥 get-welcome error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error", detail: err.message }),
+      body: JSON.stringify({
+        error: "Internal server error",
+        detail: err.message,
+      }),
     };
   }
 };
