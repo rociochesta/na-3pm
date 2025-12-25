@@ -1,18 +1,20 @@
 // netlify/functions/_db.js
 import pg from "pg";
-console.log("DB URL exists?", Boolean(process.env.DATABASE_URL));
 const { Pool } = pg;
 
 const connectionString =
   process.env.DATABASE_URL ||
-  process.env.SUPABASE_DB_URL ||         // 👈 pon aquí el nombre REAL que tengas
-  process.env.SUPABASE_DATABASE_URL;     // (opcional)
+  process.env.DATABASE__URL || // 👈 por si la variable quedó con doble _
+  process.env.SUPABASE_DB_URL ||
+  process.env.SUPABASE_DATABASE_URL;
+
+console.log("[db] has DATABASE_URL:", Boolean(process.env.DATABASE_URL));
+console.log("[db] has DATABASE__URL:", Boolean(process.env.DATABASE__URL));
+console.log("[db] using connectionString?", Boolean(connectionString));
+console.log("[db] conn length:", connectionString?.length || 0);
 
 if (!connectionString) {
-  // Esto te va a dejar el error CLARITO en logs
-  throw new Error(
-    "Missing DB connection string. Set DATABASE_URL (or SUPABASE_DB_URL) in Netlify env vars."
-  );
+  throw new Error("Missing DB connection string (DATABASE_URL).");
 }
 
 export const pool = new Pool({
