@@ -465,11 +465,12 @@ useEffect(() => {
       </p>
     )}
 
-{isGuest && userProfile?.name && (
+{userProfile?.name && !welcomeSubline && (
   <p className="text-[11px] text-slate-500">
     Hi {userProfile.name}. However yesterday went, you still made it here.
   </p>
 )}
+
 
   </div>
 </section>

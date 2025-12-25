@@ -6,16 +6,27 @@ export const handler = async (event) => {
   }
 
   try {
-    const groupId = 1; // o después lo sacas de localStorage vía query param si quieres
+    // puedes pasar groupId por query en el futuro: /get-welcome?groupId=...
+    const groupId = event.queryStringParameters?.groupId || null;
 
     const result = await pool.query(
       `
       SELECT id, headline, subline
       FROM welcome_messages
       WHERE is_active = true
-        AND (group_id = $1 OR group_id IS NULL)
+        AND (
+          ($1::uuid is not null and group_id = $1::uuid)
+          OR
+          ($1::uuid is null and group_id is null)
+          OR
+          (group_id is null)
+        )
       ORDER BY
-        CASE WHEN group_id = $1 THEN 0 ELSE 1 END,
+        CASE
+          WHEN $1::uuid is not null AND group_id = $1::uuid THEN 0
+          WHEN group_id is null THEN 1
+          ELSE 2
+        END,
         RANDOM()
       LIMIT 1;
       `,
