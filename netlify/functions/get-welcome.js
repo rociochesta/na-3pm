@@ -6,57 +6,57 @@ const UUID_RE =
 
 export const handler = async (event) => {
   if (event.httpMethod !== "GET") {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: "Method not allowed" }),
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
   try {
-    // ✅ Netlify-safe: NO uses URL().searchParams acá
+    // ✅ Netlify-safe: queryStringParameters SIEMPRE
     const raw = event.queryStringParameters?.groupId;
     const groupId = raw && UUID_RE.test(raw) ? raw : null;
 
+    // Pick 1 headline and 1 subline (prefer group match, fallback to NULL/global)
     const result = await pool.query(
       `
-      SELECT id, headline, subline
-      FROM welcome_messages
-      WHERE is_active = true
-        AND (
-          (group_id = $1::uuid)
-          OR (group_id IS NULL)
-        )
-      ORDER BY
-        CASE WHEN group_id = $1::uuid THEN 0 ELSE 1 END,
-        RANDOM()
-      LIMIT 1;
+      WITH
+      h AS (
+        SELECT text
+        FROM public.group_messages
+        WHERE is_active = true
+          AND type = 'welcome_headline'
+          AND (group_id = $1::uuid OR group_id IS NULL)
+        ORDER BY
+          CASE WHEN group_id = $1::uuid THEN 0 ELSE 1 END,
+          RANDOM()
+        LIMIT 1
+      ),
+      s AS (
+        SELECT text
+        FROM public.group_messages
+        WHERE is_active = true
+          AND type = 'welcome_subline'
+          AND (group_id = $1::uuid OR group_id IS NULL)
+        ORDER BY
+          CASE WHEN group_id = $1::uuid THEN 0 ELSE 1 END,
+          RANDOM()
+        LIMIT 1
+      )
+      SELECT
+        COALESCE((SELECT text FROM h), 'Welcome.') AS headline,
+        COALESCE((SELECT text FROM s), 'Apparently the database is taking a smoke break.') AS subline
+      ;
       `,
       [groupId]
     );
 
-    if (result.rowCount === 0) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          headline: "Welcome.",
-          subline: "Apparently the database is taking a smoke break.",
-        }),
-      };
-    }
-
-    const row = result.rows[0];
     return {
       statusCode: 200,
-      body: JSON.stringify({ headline: row.headline, subline: row.subline }),
+      body: JSON.stringify(result.rows[0]),
     };
   } catch (err) {
     console.error("💥 get-welcome error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Internal server error",
-        detail: err.message,
-      }),
+      body: JSON.stringify({ error: "Internal server error", detail: err.message }),
     };
   }
 };
