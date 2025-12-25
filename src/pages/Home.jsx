@@ -98,6 +98,42 @@ const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
   // ─────────────────────────────────────────────
   // Cargar welcome message desde Netlify function
   // ─────────────────────────────────────────────
+
+  // ─────────────────────────────────────────────
+// Welcome message (DB via Netlify function)
+// ─────────────────────────────────────────────
+useEffect(() => {
+  const loadWelcome = async () => {
+    try {
+      const groupId = window.localStorage.getItem("na_groupId");
+
+      const url = groupId
+        ? `/.netlify/functions/get-welcome?groupId=${encodeURIComponent(groupId)}`
+        : "/.netlify/functions/get-welcome";
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+
+      setWelcomeHeadline(
+        data?.headline || "Welcome back. Again. That’s how recovery works."
+      );
+      setWelcomeSubline(
+        data?.subline || "The server is hungover, but you still logged in. Bold move."
+      );
+    } catch (err) {
+      console.error("Failed to load welcome message:", err);
+
+      // fallback local
+      setWelcomeHeadline("Welcome back. If you relapsed, you still get to be here.");
+      setWelcomeSubline("We don’t grade your days. We just keep you company in them.");
+    }
+  };
+
+  loadWelcome();
+}, []);
+
 useEffect(() => {
   (async () => {
     // 1) Clean date from localStorage

@@ -10,41 +10,47 @@ export const handler = async (event) => {
   }
 
   try {
-    // 👇 group_id fijo por ahora
-    const groupId = 1;
+    // ✅ groupId dinámico (querystring) + fallback a null (global)
+    // En el front: fetch("/.netlify/functions/get-welcome?groupId=" + na_groupId)
+    const groupIdRaw = event.queryStringParameters?.groupId || null;
+    const groupId = groupIdRaw && String(groupIdRaw).trim() ? String(groupIdRaw).trim() : null;
 
-    const result = await pool.query(
-      `
-      SELECT id, headline, subline
-      FROM welcome_messages
-      WHERE group_id = $1
-        AND is_active = true
-      ORDER BY RANDOM()
-      LIMIT 1;
-      `,
-      [groupId]
-    );
+    // Helper: trae 1 texto por type, priorizando grupo > global
+    async function pickOne(type) {
+      const result = await pool.query(
+        `
+        select id, text
+        from group_messages
+        where
+          type = $2
+          and is_active = true
+          and (
+            ($1::uuid is not null and group_id = $1::uuid)
+            or group_id is null
+          )
+        order by
+          case when group_id = $1::uuid then 0 else 1 end,
+          (random() * weight) desc,
+          created_at desc
+        limit 1;
+        `,
+        [groupId, type]
+      );
 
-    if (result.rowCount === 0) {
-      console.warn("⚠️ No welcome messages found for group:", groupId);
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          headline: "Welcome.",
-          subline: "Apparently the database is taking a smoke break.",
-        }),
-      };
+      return result.rowCount ? result.rows[0].text : null;
     }
 
-    const row = result.rows[0];
-    console.log("✨ Welcome message served:", row);
+    const headline =
+      (await pickOne("welcome_headline")) ||
+      "Welcome back. If you relapsed, you still get to be here.";
+
+    const subline =
+      (await pickOne("welcome_subline")) ||
+      "We don’t grade your days. We just keep you company in them.";
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        headline: row.headline,
-        subline: row.subline,
-      }),
+      body: JSON.stringify({ headline, subline }),
     };
   } catch (err) {
     console.error("💥 get-welcome error:", err);
