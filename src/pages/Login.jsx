@@ -4,13 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import Header3PM from "../components/Header3PM.jsx";
 import BottomNav from "../components/BottomNav";
 
-
 export default function Login() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
-  const [group, setGroup] = useState("3PM_NA"); // default: 3PM
-  const [password, setPassword] = useState("");
+  const [group, setGroup] = useState("3PM"); // must match groups.code in DB
+  const [password, setPassword] = useState(""); // not used yet (future group PIN)
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -24,52 +23,61 @@ export default function Login() {
       return;
     }
 
-    const profile = {
-      name: trimmedName,
-      groupCode: group || null, // ej: "3PM_NA"
-      groupKey: null, // futuro ID de grupo real en la BD si quieres
-      createdAt: new Date().toISOString(),
-    };
-
     try {
       setSubmitting(true);
 
-      // 🔹 1) Guardar perfil localmente (para que la app funcione offline)
+      // 1) Save local profile (offline-friendly)
+      const profile = {
+        name: trimmedName,
+        groupCode: group || null, // e.g. '3PM'
+        createdAt: new Date().toISOString(),
+      };
       window.localStorage.setItem("na_userProfile", JSON.stringify(profile));
 
-      // 🔹 2) (Opcional pero recomendado) Enviar a tu backend para crear/actualizar el usuario en la BD
-      // Ajusta la URL según tu backend (`/api/members/self-register` es solo un ejemplo)
-      try {
-const res = await fetch("/.netlify/functions/register-member", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    name: trimmedName,
-    groupId: 1, // 3PM group
-  }),
-});
+      // 2) Register (or get existing) member + group from DB
+      const res = await fetch("/.netlify/functions/members-self-register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: trimmedName,
+          groupCode: group, // e.g. '3PM'
+        }),
+      });
 
+      const data = await res.json();
 
-        if (!res.ok) {
-          console.warn("Failed to save user in DB:", res.status);
-        } else {
-       
- const data = await res.json();
-
-// 👇 ESTA ES LA PARTE QUE PREGUNTASTE
-if (data && data.id) {
-  window.localStorage.setItem("na_memberId", String(data.id));
-  window.localStorage.setItem("na_memberName", trimmedName); // opcional
-}
-
-console.log("Saved user in DB:", data);
-        }
-      } catch (dbErr) {
-        console.warn("Error calling backend for user:", dbErr);
+      if (!res.ok) {
+        console.warn("members-self-register failed:", data);
+        setError(data?.error || "Could not register. Try again.");
+        return;
       }
 
-      // 🔹 3) Ir a Home
+      // data shape: { member: {...}, group: {...} }
+      if (data?.member?.id) {
+        window.localStorage.setItem("na_memberId", data.member.id); // uuid
+        window.localStorage.setItem(
+          "na_memberName",
+          data.member.display_name || trimmedName
+        );
+      } else {
+        setError("Registration returned no member id.");
+        return;
+      }
+
+      if (data?.group?.id) {
+        window.localStorage.setItem("na_groupId", data.group.id); // uuid
+        window.localStorage.setItem("na_groupCode", data.group.code || group);
+      } else {
+        // group is required for the rest of the app (Group/Admin pages)
+        setError("Registration returned no group id.");
+        return;
+      }
+
+      // 3) Go Home
       navigate("/");
+    } catch (err) {
+      console.error("Login submit error:", err);
+      setError("Something went wrong. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -123,7 +131,7 @@ console.log("Saved user in DB:", data);
                   </p>
                 </div>
 
-                {/* Group (dropdown, for now only 3PM) */}
+                {/* Group */}
                 <div className="space-y-1">
                   <label
                     htmlFor="group"
@@ -137,11 +145,12 @@ console.log("Saved user in DB:", data);
                     onChange={(e) => setGroup(e.target.value)}
                     className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2 text-sm text-slate-50 focus:outline-none focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400"
                   >
-                    <option value="3PM_NA">3PM NA</option>
-                    {/* Más grupos en el futuro */}
+                    <option value="3PM">3PM NA</option>
+                    <option value="NIGHTSHIFT">Night Shift</option>
+                    <option value="DEBUG">Debug / Sandbox</option>
                   </select>
                   <p className="text-[11px] text-slate-500">
-                    For now this app is built around the 3PM group.
+                    This must match the group <span className="font-mono">code</span> in the DB.
                   </p>
                 </div>
 
@@ -169,9 +178,7 @@ console.log("Saved user in DB:", data);
                   </p>
                 </div>
 
-                {error && (
-                  <p className="text-[11px] text-rose-400 pt-1">{error}</p>
-                )}
+                {error && <p className="text-[11px] text-rose-400 pt-1">{error}</p>}
 
                 <div className="pt-2 space-y-2">
                   <button
@@ -201,6 +208,8 @@ console.log("Saved user in DB:", data);
           </div>
         </div>
       </main>
+
+      <BottomNav />
     </div>
   );
 }

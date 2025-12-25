@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Users, Plus, Quote } from "lucide-react";
 
-import { loadGroupMembers } from "../constants/groupMembers.js";
+//import { loadGroupMembers } from "../constants/groupMembers.js";
 import { SLOGAN_SETS } from "../constants/slogans.js";
 import BottomNav from "../components/BottomNav";
 
@@ -24,13 +24,41 @@ export default function Admin() {
     if (!ok) nav("/boss");
   }, [nav]);
 
-  useEffect(() => {
-    loadGroupMembers().then(setMembers).catch(console.error);
+useEffect(() => {
+  (async () => {
+    try {
+      const groupId = window.localStorage.getItem("na_groupId");
+      if (!groupId) {
+        console.warn("Admin: no na_groupId in localStorage");
+        setMembers([]);
+        return;
+      }
 
-    // 🔹 Mock inicial de slogans: por ahora asumimos grupo 3PM
-    const base = SLOGAN_SETS["3PM"] || [];
-    setSlogans(base);
-  }, []);
+      const res = await fetch("/.netlify/functions/get-group-members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ groupId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("get-group-members failed:", data);
+        setMembers([]);
+        return;
+      }
+
+      setMembers(data.members || []);
+    } catch (e) {
+      console.error("Admin load members failed:", e);
+      setMembers([]);
+    }
+  })();
+
+  // slogans: por ahora mock
+  const base = SLOGAN_SETS["3PM"] || [];
+  setSlogans(base);
+}, []);
+
 
   // Por ahora solo front: no guarda nada, no toca el JSON.
   function handleFakeSubmit(e) {
@@ -101,10 +129,11 @@ export default function Admin() {
                 key={`${m.name}-${idx}`}
                 className="flex items-center justify-between text-[12px] text-slate-200 border-b border-slate-800/60 last:border-none pb-1.5 last:pb-0"
               >
-                <span>{m.name}</span>
-                <span className="text-[11px] text-slate-400">
-                  {m.soberDate}
-                </span>
+<span>{m.display_name}</span>
+<span className="text-[11px] text-slate-400">
+  {m.sober_date || "—"}
+</span>
+
               </div>
             ))}
           </div>
@@ -237,7 +266,8 @@ export default function Admin() {
           await fetch("/.netlify/functions/delete-member", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ memberId: Number(memberId) }),
+           body: JSON.stringify({ memberId }),
+
           });
         }
 

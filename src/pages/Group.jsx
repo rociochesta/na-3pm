@@ -6,7 +6,7 @@ import MilestoneIcon from "../components/MilestoneIcon.jsx";
 
 import { UsersRound, CalendarClock, MapPin, Video, Users } from "lucide-react";
 
-import { loadGroupMembers } from "../constants/groupMembers.js";
+//import { loadGroupMembers } from "../constants/groupMembers.js";
 import {
   getGroupUpcomingMilestones,
   getGroupAllNextMilestones,
@@ -22,21 +22,56 @@ export default function GroupPage() {
   const [allNextMilestones, setAllNextMilestones] = useState([]);
 
   useEffect(() => {
-    // cargar miembros del grupo (mismo JSON que en Home)
-    loadGroupMembers()
-      .then((data) => {
-        setGroupMembers(data || []);
+  (async () => {
+    try {
+      const groupId = window.localStorage.getItem("na_groupId");
+      if (!groupId) {
+        console.warn("Group page: no na_groupId in localStorage");
+        setGroupMembers([]);
+        setGroupMilestones([]);
+        setAllNextMilestones([]);
+        return;
+      }
 
-        const upcoming = getGroupUpcomingMilestones(data, 7);
-        const allNext = getGroupAllNextMilestones(data);
-
-        setGroupMilestones(upcoming);
-        setAllNextMilestones(allNext);
-      })
-      .catch((err) => {
-        console.error("Group members load error (Group page):", err);
+      const res = await fetch("/.netlify/functions/get-group-members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ groupId }),
       });
-  }, []);
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("get-group-members failed:", data);
+        setGroupMembers([]);
+        setGroupMilestones([]);
+        setAllNextMilestones([]);
+        return;
+      }
+
+      // Adapt DB shape -> old shape used by milestone utils
+      const normalized = (data.members || []).map((m) => ({
+        id: m.id,
+        name: m.display_name,
+        soberDate: m.sober_date, // could be null
+        role: m.role,
+      }));
+
+      setGroupMembers(normalized);
+
+      const upcoming = getGroupUpcomingMilestones(normalized, 7);
+      const allNext = getGroupAllNextMilestones(normalized);
+
+      setGroupMilestones(upcoming);
+      setAllNextMilestones(allNext);
+    } catch (err) {
+      console.error("Group members load error (Group page):", err);
+      setGroupMembers([]);
+      setGroupMilestones([]);
+      setAllNextMilestones([]);
+    }
+  })();
+}, []);
+
 
   // actualizar contador de próxima reunión
   useEffect(() => {

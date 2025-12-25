@@ -26,7 +26,7 @@ export const handler = async (event) => {
     // 1) Buscar si ya existe
     const existing = await pool.query(
       `
-      SELECT id, display_name, sober_date
+     SELECT id, group_id, display_name, sober_date, role
       FROM group_members
       WHERE group_id = $1 AND display_name = $2
       LIMIT 1;
@@ -46,9 +46,9 @@ export const handler = async (event) => {
     // 2) Crear nuevo con sober_date = NULL
     const inserted = await pool.query(
       `
-      INSERT INTO group_members (group_id, display_name, sober_date, created_at)
-      VALUES ($1, $2, NULL, NOW())
-      RETURNING id, display_name, sober_date;
+    INSERT INTO group_members (group_id, display_name, sober_date, role, created_at)
+VALUES ($1, $2, NULL, 'member', NOW())
+RETURNING id, group_id, display_name, sober_date, role;
       `,
       [groupId, name]
     );

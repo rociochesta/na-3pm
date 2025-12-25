@@ -30,7 +30,7 @@ import { getPunchline } from "../utils/getPunchline.js";
 import { getMilestonesStatus } from "../utils/getMilestonesStatus.js";
 import { getMilestonePunchline } from "../utils/getMilestonePunchline.js";
 import { getCleanTimePhrase } from "../utils/getCleanTimePhrase.js";
-import { loadGroupMembers } from "../constants/groupMembers.js";
+//import { loadGroupMembers } from "../constants/groupMembers.js";
 import {
   getGroupUpcomingMilestones,
   getGroupAllNextMilestones,
@@ -98,105 +98,112 @@ const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
   // ─────────────────────────────────────────────
   // Cargar welcome message desde Netlify function
   // ─────────────────────────────────────────────
-  useEffect(() => {
-    const loadWelcome = async () => {
-      try {
-        const res = await fetch("/.netlify/functions/get-welcome");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-
-        setWelcomeHeadline(
-          data?.headline || "Welcome back. Again. That’s how recovery works."
-        );
-        setWelcomeSubline(
-          data?.subline ||
-            "The server is hungover, but you still logged in. Bold move."
-        );
-      } catch (err) {
-        console.error("Failed to load welcome message:", err);
-        setWelcomeHeadline(
-          "Welcome back. If you relapsed, you still get to be here."
-        );
-        setWelcomeSubline(
-          "We don’t grade your days. We just keep you company in them."
-        );
+useEffect(() => {
+  (async () => {
+    // 1) Clean date from localStorage
+    let storedSoberDate = null;
+    try {
+      const stored = window.localStorage.getItem("na_soberDate");
+      if (stored) {
+        storedSoberDate = stored;
+        setSoberDate(stored);
+        setDaysClean(getDaysClean(stored));
       }
-    };
+    } catch {
+      // ignore
+    }
 
-    loadWelcome();
-  }, []);
+    // 2) User profile (local)
+    try {
+      const rawProfile = window.localStorage.getItem("na_userProfile");
+      if (rawProfile) setUserProfile(JSON.parse(rawProfile));
+    } catch (err) {
+      console.error("User profile load error:", err);
+    }
 
-  useEffect(() => {
-    (async () => {
-      // 1) Clean date from localStorage
-      let storedSoberDate = null;
-      try {
-        const stored = window.localStorage.getItem("na_soberDate");
-        if (stored) {
-          storedSoberDate = stored;
-          setSoberDate(stored);
-          setDaysClean(getDaysClean(stored));
-        }
-      } catch {
-        // ignore
-      }
+    // 3) Try to read sober_date from DB (if we have memberId)
+    try {
+      const memberId = window.localStorage.getItem("na_memberId");
 
-      // 2) User profile (local)
-      try {
-        const rawProfile = window.localStorage.getItem("na_userProfile");
-        if (rawProfile) {
-          setUserProfile(JSON.parse(rawProfile));
-        }
-      } catch (err) {
-        console.error("User profile load error:", err);
-      }
+      if (memberId) {
+        const res = await fetch("/.netlify/functions/get-member", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ memberId }), // ✅ uuid (NO Number)
+        });
 
-      // 3) Try to read sober_date from DB (if we have memberId)
-      try {
-        const memberId = window.localStorage.getItem("na_memberId");
+        if (!res.ok) {
+          console.warn("Failed to load member from DB:", res.status);
+        } else {
+          const data = await res.json();
+          if (data && data.sober_date) {
+            const dbDate = String(data.sober_date).slice(0, 10);
 
-        if (memberId) {
-          const res = await fetch("/.netlify/functions/get-member", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ memberId: Number(memberId) }),
-          });
-
-          if (!res.ok) {
-            console.warn("Failed to load member from DB:", res.status);
-          } else {
-            const data = await res.json();
-            if (data && data.sober_date) {
-              // Supabase returns full timestamp; keep YYYY-MM-DD
-              const dbDate = String(data.sober_date).slice(0, 10);
-
-              // If local is empty or different → sync from DB
-              if (!storedSoberDate || storedSoberDate !== dbDate) {
-                window.localStorage.setItem("na_soberDate", dbDate);
-                setSoberDate(dbDate);
-                setDaysClean(getDaysClean(dbDate));
-              }
+            if (!storedSoberDate || storedSoberDate !== dbDate) {
+              window.localStorage.setItem("na_soberDate", dbDate);
+              setSoberDate(dbDate);
+              setDaysClean(getDaysClean(dbDate));
             }
           }
         }
-      } catch (err) {
-        console.warn("Error fetching sober date from DB:", err);
       }
+    } catch (err) {
+      console.warn("Error fetching sober date from DB:", err);
+    }
 
-      // 4) Group members (JSON público)
-      loadGroupMembers()
-        .then((data) => setGroupMembers(data))
-        .catch((err) => console.error("Group members load error:", err));
+    // 4) Group members (DB)
+    try {
+      const groupId = window.localStorage.getItem("na_groupId");
 
-      // 5) My Why
+      if (groupId) {
+        const res = await fetch("/.netlify/functions/get-group-members", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ groupId }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.warn("Failed to load group members from DB:", data);
+          setGroupMembers([]);
+        } else {
+          // normalize for existing utils expecting { name, soberDate }
+          const normalized = (data.members || []).map((m) => ({
+            id: m.id,
+            name: m.display_name,
+            soberDate: m.sober_date, // can be null
+            role: m.role,
+          }));
+
+          setGroupMembers(normalized);
+        }
+      } else {
+        setGroupMembers([]);
+      }
+    } catch (err) {
+      console.warn("Group members DB fetch error:", err);
+      setGroupMembers([]);
+    }
+
+    // 5) My Why
+    try {
       const w = window.localStorage.getItem("na_myWhy");
       if (w) setSavedWhy(w);
+    } catch {
+      // ignore
+    }
 
-      // 6) Gratitudes
+    // 6) Gratitudes
+    try {
       const stats = getGratitudeStats();
       if (stats) setGratitudeStats(stats);
+    } catch {
+      // ignore
+    }
 
-      // 7) Today’s tool done?
+    // 7) Today’s tool done?
+    try {
       const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
       const doneKey = `na_toolDone_${todayKey}`;
       const punchKey = `na_toolDoneLine_${todayKey}`;
@@ -206,8 +213,12 @@ const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
 
       setToolDone(storedDone === "1");
       if (storedLine) setToolDoneLine(storedLine);
-    })();
-  }, []);
+    } catch {
+      // ignore
+    }
+  })();
+}, []);
+
 
   const hasSoberDate = Boolean(soberDate) && daysClean !== null;
 
@@ -288,57 +299,65 @@ useEffect(() => {
 
   // guard / auto-register member
   useEffect(() => {
-    const profileRaw = window.localStorage.getItem("na_userProfile");
-    const memberId = window.localStorage.getItem("na_memberId");
+  const profileRaw = window.localStorage.getItem("na_userProfile");
+  const memberId = window.localStorage.getItem("na_memberId");
 
-    console.log("Guard check → profile:", profileRaw, "memberId:", memberId);
+  console.log("Guard check → profile:", profileRaw, "memberId:", memberId);
 
-    // Si no hay nada de nada → mandar a login
-    if (!profileRaw && !memberId) {
-      navigate("/login", { replace: true });
-      return;
-    }
+  // If no profile and no memberId -> go login
+  if (!profileRaw && !memberId) {
+    navigate("/login", { replace: true });
+    return;
+  }
 
-    // Si HAY perfil pero NO memberId → intentar crearlo en la BD
-    if (profileRaw && !memberId) {
-      const profile = JSON.parse(profileRaw);
+  // If profile exists but no memberId -> self-register
+  if (profileRaw && !memberId) {
+    const profile = JSON.parse(profileRaw);
 
-      (async () => {
-        try {
-          const res = await fetch("/.netlify/functions/register-member", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: profile.name,
-              groupId: 1, // 3PM
-            }),
-          });
+    const groupCode =
+      profile?.groupCode ||
+      window.localStorage.getItem("na_groupCode") ||
+      "3PM";
 
-          const text = await res.text();
-          if (!res.ok) {
-            console.warn("Auto-register member failed:", res.status, text);
-            return;
-          }
+    (async () => {
+      try {
+        const res = await fetch("/.netlify/functions/members-self-register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: profile.name,
+            groupCode,
+          }),
+        });
 
-          let data = null;
-          try {
-            data = JSON.parse(text);
-          } catch {
-            data = null;
-          }
+        const data = await res.json();
 
-          if (data && data.id) {
-            window.localStorage.setItem("na_memberId", String(data.id));
-            console.log("Auto-saved na_memberId:", data.id);
-          } else {
-            console.warn("register-member (auto) sin id en respuesta:", text);
-          }
-        } catch (err) {
-          console.warn("Error calling register-member (auto):", err);
+        if (!res.ok) {
+          console.warn("Auto self-register failed:", data);
+          return;
         }
-      })();
-    }
-  }, [navigate]);
+
+        // save uuid ids
+        if (data?.member?.id) {
+          window.localStorage.setItem("na_memberId", data.member.id);
+          window.localStorage.setItem(
+            "na_memberName",
+            data.member.display_name || profile.name
+          );
+          console.log("Auto-saved na_memberId:", data.member.id);
+        }
+
+        if (data?.group?.id) {
+          window.localStorage.setItem("na_groupId", data.group.id);
+          window.localStorage.setItem("na_groupCode", data.group.code || groupCode);
+        }
+      } catch (err) {
+        console.warn("Error calling members-self-register (auto):", err);
+      }
+    })();
+  }
+}, [navigate]);
+
 
   function handleToggleToolDone() {
     const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD

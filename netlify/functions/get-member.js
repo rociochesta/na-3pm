@@ -20,14 +20,14 @@ export const handler = async (event) => {
       };
     }
 
-    const result = await pool.query(
-      `
-      SELECT id, display_name, sober_date
-      FROM group_members
-      WHERE id = $1;
-      `,
-      [memberId]
-    );
+const result = await pool.query(
+  `
+  SELECT id, group_id, display_name, sober_date, role
+  FROM group_members
+  WHERE id = $1;
+  `,
+  [memberId]
+);
 
     if (result.rowCount === 0) {
       return {
