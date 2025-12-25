@@ -8,13 +8,11 @@ const connectionString =
   process.env.SUPABASE_DB_URL ||
   process.env.SUPABASE_DATABASE_URL;
 
-console.log("[db] has DATABASE_URL:", Boolean(process.env.DATABASE_URL));
-console.log("[db] has DATABASE__URL:", Boolean(process.env.DATABASE__URL));
-console.log("[db] using connectionString?", Boolean(connectionString));
-console.log("[db] conn length:", connectionString?.length || 0);
+
 
 if (!connectionString) {
   throw new Error("Missing DB connection string (DATABASE_URL).");
+  
 }
 
 export const pool = new Pool({

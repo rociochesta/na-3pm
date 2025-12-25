@@ -19,30 +19,41 @@ export default function Header3PM({ showMenu = true }) {
     }
 
     // cargar slogan desde DB
-    const loadSloganFromDb = async () => {
-      try {
-        const res = await fetch("/.netlify/functions/get-slogan");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+   const loadSloganFromDb = async () => {
+  try {
+    const groupId = window.localStorage.getItem("na_groupId");
 
-        const data = await res.json();
+    const url =
+      groupId
+        ? `/.netlify/functions/get-slogan?groupId=${encodeURIComponent(groupId)}`
+        : "/.netlify/functions/get-slogan";
 
-        if (data?.text) {
-          setSlogan(data.text);
-        } else {
-          setSlogan(getSlogan()); // fallback local si no hay slogan
-        }
-      } catch (err) {
-        console.error("No se pudo cargar el slogan desde la DB:", err);
-        setSlogan(getSlogan());
-      }
-    };
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+
+    if (data?.text) {
+      setSlogan(data.text);
+    } else {
+      setSlogan(getSlogan()); // fallback local
+    }
+  } catch (err) {
+    console.error("No se pudo cargar el slogan desde la DB:", err);
+    setSlogan(getSlogan());
+  }
+};
 
     loadSloganFromDb();
   }, []);
 
   // inicial del usuario para el avatar (si existe)
-  const userInitial =
-    userProfile?.display_name?.trim()?.charAt(0)?.toUpperCase() || null;
+ const userInitial =
+  (userProfile?.display_name || userProfile?.name || "")
+    .trim()
+    .charAt(0)
+    .toUpperCase() || null;
+
 
   return (
     <>
