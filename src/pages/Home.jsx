@@ -96,6 +96,13 @@ const isGuest = !memberId;
   const [welcomeHeadline, setWelcomeHeadline] = useState("Welcome back.");
   const [welcomeSubline, setWelcomeSubline] = useState("");
 const [timeUntilMeeting, setTimeUntilMeeting] = useState("");
+const [showHiLine] = useState(() => Math.random() < 0.35); // 35% de las veces
+
+const displayName =
+  userProfile?.name ||
+  window.localStorage.getItem("na_memberName") ||
+  "";
+
 
   // ─────────────────────────────────────────────
   // Cargar welcome message desde Netlify function
@@ -458,16 +465,15 @@ useEffect(() => {
     <h2 className="text-sm font-semibold leading-snug">
       {welcomeHeadline}
     </h2>
+{welcomeSubline && (
+  <p className="text-[12px] text-slate-300 leading-snug">
+    {welcomeSubline}
+  </p>
+)}
 
-    {welcomeSubline && (
-      <p className="text-[12px] text-slate-300 leading-snug">
-        {welcomeSubline}
-      </p>
-    )}
-
-{userProfile?.name && !welcomeSubline && (
+{displayName && showHiLine && (
   <p className="text-[11px] text-slate-500">
-    Hi {userProfile.name}. However yesterday went, you still made it here.
+    Hi {displayName}. However yesterday went, you still made it here.
   </p>
 )}
 
