@@ -9,34 +9,55 @@ export const handler = async (event) => {
     };
   }
 
-  // 👇 Ajusta este group_id según tu setup
-  const GROUP_ID = 1;
-
   try {
+    const groupIdRaw = event.queryStringParameters?.groupId || null;
+
+    const isUuid =
+      typeof groupIdRaw === "string" &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        groupIdRaw
+      );
+
+    const groupId = isUuid ? groupIdRaw : null;
+
     const result = await pool.query(
       `
       SELECT text
-      FROM group_slogans
-      WHERE group_id = $1
-      ORDER BY RANDOM()
+      FROM group_messages
+      WHERE type = 'slogan'
+        AND is_active = true
+        AND (
+          ($1::uuid IS NOT NULL AND group_id = $1::uuid)
+          OR
+          (group_id IS NULL)
+        )
+      ORDER BY
+        CASE
+          WHEN $1::uuid IS NOT NULL AND group_id = $1::uuid THEN 0
+          ELSE 1
+        END,
+        RANDOM()
       LIMIT 1;
       `,
-      [GROUP_ID]
+      [groupId]
     );
 
     if (result.rowCount === 0) {
-      console.warn("⚠️ No slogans in DB — returning fallback");
       return {
         statusCode: 200,
-        body: JSON.stringify({ text: null }),
+        body: JSON.stringify({
+          text: "Recovery works better when we show up.",
+          source: "fallback",
+        }),
       };
     }
 
-    console.log("✅ Slogan fetched:", result.rows[0].text);
-
     return {
       statusCode: 200,
-      body: JSON.stringify({ text: result.rows[0].text }),
+      body: JSON.stringify({
+        text: result.rows[0].text,
+        source: groupId ? "group" : "generic",
+      }),
     };
   } catch (err) {
     console.error("💥 get-slogan error:", err);
