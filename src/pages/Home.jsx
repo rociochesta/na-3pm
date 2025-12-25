@@ -111,6 +111,10 @@ const displayName =
   // ─────────────────────────────────────────────
 // Welcome message (DB via Netlify function)
 // ─────────────────────────────────────────────
+const gid = window.localStorage.getItem("na_groupId");
+if (gid && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(gid)) {
+  window.localStorage.removeItem("na_groupId");
+}
 useEffect(() => {
   const loadWelcome = async () => {
     try {
