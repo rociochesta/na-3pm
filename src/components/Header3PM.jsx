@@ -23,11 +23,11 @@ export default function Header3PM({ showMenu = true }) {
   try {
 const groupId = window.localStorage.getItem("na_groupId");
 
-const url = groupId
-  ? `/.netlify/functions/get-slogan?groupId=${encodeURIComponent(groupId)}`
-  : "/.netlify/functions/get-slogan";
-
-const res = await fetch(url);
+const res = await fetch(
+  groupId
+    ? `/.netlify/functions/get-slogan?groupId=${groupId}`
+    : "/.netlify/functions/get-slogan"
+);
 
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
